@@ -24,8 +24,16 @@ public:
 		nodes.push_back(Node<T>(nodeData , nodes.size()));
 	}
 
-	Node<T> getNodeByID(){
-		//TODO getNodeByID
+	Node<T> getNodeByID(unsigned int ID){
+
+		for(unsigned int i = 0; i < this->nodes.size(); i++){
+			if(nodes.at(i).getId() == ID){
+				return nodes.at(i);
+			}
+		}
+
+		// If the node doesn't exist, return NULL
+		return NULL;
 	}
 };
 

@@ -33,6 +33,10 @@ public:
 		edges.push_back(edge);
 	}
 
+	unsigned int getId() const {
+		return ID;
+	}
+
 };
 
 template <typename T>
