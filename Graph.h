@@ -16,8 +16,17 @@ private:
 	vector<Node<T>> nodes;
 
 public:
-	Graph();
+	Graph(){};
+
 	virtual ~Graph();
+
+	void addNode(T nodeData){
+		nodes.push_back(Node<T>(nodeData , nodes.size()));
+	}
+
+	Node<T> getNodeByID(){
+		//TODO getNodeByID
+	}
 };
 
 #endif /* GRAPH_H_ */

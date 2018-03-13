@@ -5,8 +5,6 @@
  *      Author: filipa
  */
 
-
-
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -19,14 +17,21 @@ class Edge;
 template <typename T>
 class Node {
 private:
+	unsigned int ID;
 	T value;
-	vector<Edge<T>> paths;
+	vector<Edge<T>> edges;
 
 public:
-	Node(const T &value);
+	Node(const T &value, unsigned int ID){
+		this->value = value;
+		this->ID = ID;
+	}
+
 	virtual ~Node();
 
-	void addEdge();
+	void addEdge(Edge<T> edge){
+		edges.push_back(edge);
+	}
 
 };
 
@@ -37,6 +42,10 @@ private:
 	double weight;
 
 public:
-	Edge(Node<T>* node, double weight);
+	Edge(Node<T>* node, double weight){
+		this->node = node;
+		this->weight = weight;
+	}
+
 	virtual ~Edge();
 };
