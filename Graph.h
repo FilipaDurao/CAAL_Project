@@ -96,6 +96,7 @@ public:
 	virtual ~Edge();
 
 	Node<T>* getDestiny();
+	double getWeight();
 };
 
 template <typename T>
@@ -110,6 +111,11 @@ Edge<T>::~Edge(){}
 template <typename T>
 Node<T>* Edge<T>::getDestiny(){
 	return destiny;
+}
+
+template <typename T>
+double Edge<T>::getWeight(){
+	return weight;
 }
 
 
