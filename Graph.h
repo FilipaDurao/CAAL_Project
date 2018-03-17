@@ -38,44 +38,80 @@ public:
 	void addEdge(Edge<T> edge);
 	unsigned int getId() const;
 	T getValue() const;
-	unsigned int getNumberOfEdges();
-	vector<Edge<T>> getEdges();
+	unsigned int getNumberOfEdges() const;
+	vector<Edge<T>> getEdges() const;
 
 };
 
+/**
+ * @brief Creates a node
+ * The node's ID will be its place in the node's vector in graph, for easier access
+ *
+ * @param value - the node's value
+ * @param ID - the node's ID
+ *
+ */
 template <typename T>
 Node<T>::Node(const T &value, unsigned int ID){
 		this->value = value;
 		this->ID = ID;
 }
 
+/**
+ * @brief Destroys a node
+ */
 template <typename T>
 Node<T>::~Node(){
 	edges.clear();
 }
 
+/**
+ * @brief Adds an edge to a node
+ *
+ * @param edge - a generic edge to add to the node
+ */
 template <typename T>
 void Node<T>::addEdge(Edge<T> edge){
 	edges.push_back(edge);
 }
 
+/**
+ * @brief Returns the node's ID
+ *
+ * @return ID
+ */
 template <typename T>
 unsigned int Node<T>::getId() const {
 	return ID;
 }
 
+/**
+ * @brief  Returns the node's value
+ *
+ * @return Value
+ */
 template <typename T>
 T Node<T>::getValue() const{
 	return this->value;
 }
 
+/**
+ * @brief Returns the number of edges the node has
+ *
+ * @return Number of edges
+ */
 template <typename T>
-unsigned int Node<T>::getNumberOfEdges(){
+unsigned int Node<T>::getNumberOfEdges() const{
 	return this->edges.size();
 }
 
+/**
+ * @brief Returns a vector with all the edges of the node
+ *
+ * @return Vector with the node's edges
+ */
 template <typename T>
-vector<Edge<T>> Node<T>::getEdges(){
+vector<Edge<T>> Node<T>::getEdges() const{
 	return edges;
 }
 
@@ -95,10 +131,13 @@ public:
 	Edge(Node<T>* destiny, double weight);
 	virtual ~Edge();
 
-	Node<T>* getDestiny();
-	double getWeight();
+	Node<T>* getDestiny() const;
+	double getWeight() const;
 };
 
+/**
+ * @brief  Creates an Edge
+ */
 template <typename T>
 Edge<T>::Edge(Node<T>* destiny, double weight){
 	this->destiny = destiny;
@@ -109,12 +148,12 @@ template <typename T>
 Edge<T>::~Edge(){}
 
 template <typename T>
-Node<T>* Edge<T>::getDestiny(){
+Node<T>* Edge<T>::getDestiny() const{
 	return destiny;
 }
 
 template <typename T>
-double Edge<T>::getWeight(){
+double Edge<T>::getWeight() const{
 	return weight;
 }
 
@@ -135,10 +174,10 @@ public:
 	virtual ~Graph();
 
 	void addNode(T nodeData);
-	unsigned int getNumNodes();				//Get the number of nodes in the graph
-	Node<T> getNodeByID(unsigned int ID);	//Get one node of the graph by its ID
-	unsigned int getNumEdges();				// Get the number of edges in the graph
-	vector<Node<T>> getNodes();
+	unsigned int getNumNodes() const;				//Get the number of nodes in the graph
+	// TODO Node<T> getNodeByID(unsigned int ID) const;		//Get one node of the graph by its ID
+	unsigned int getNumEdges() const; 				// Get the number of edges in the graph
+	vector<Node<T>> getNodes() const;
 	void addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight);
 
 //	TODO Information to save during dijkstra run
@@ -146,10 +185,14 @@ struct dijkstra_info {
 	Node<T> node;
 	unsigned int pathSize;
 	Node<T> lastNode;
+
+	bool operator < (struct dijkstra_info dNode){
+		return (this->pathSize < dNode.pathSize);
+	}
 };
 
 // TODO Dijkstra algorithm in the graph
-vector<Node<T>> dijsktra(Node<T> startNode);
+vector<Node<T>> dijsktra(Node<T> startNode, Node<T> endNode);
 
 };
 
@@ -168,13 +211,13 @@ void Graph<T>::addNode(T nodeData){
 
 //Get the number of nodes in the graph
 template <typename T>
-unsigned int Graph<T>::getNumNodes(){
+unsigned int Graph<T>::getNumNodes() const{
 	return nodes.size();
 }
 
 // Get the number of edges in the graph
 template <typename T>
-unsigned int Graph<T>::getNumEdges(){
+unsigned int Graph<T>::getNumEdges() const{
 	unsigned int size = 0;
 
 	for(unsigned int i = 0; i < nodes.size(); i++){
@@ -185,10 +228,11 @@ unsigned int Graph<T>::getNumEdges(){
 
 //Return all the nodes in the graph
 template <typename T>
-vector<Node<T>> Graph<T>::getNodes(){
+vector<Node<T>> Graph<T>::getNodes() const{
 	return this->nodes;
 }
 
+//Add an edge
 template <typename T>
 void Graph<T>::addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight){
 	Edge<T> edge(&nodes.at(destinyNodeID), weight);		// Create the edge (the node's ids are their place in the vector)
@@ -196,26 +240,31 @@ void Graph<T>::addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, do
 }
 
 //Get one node of the graph by its ID
-template <typename T>
-Node<T> Graph<T>::getNodeByID(unsigned int ID){
-	// Running all nodes
-	for(unsigned int i = 0; i < this->nodes.size(); i++){
-		if(nodes.at(i).getId() == ID){
-			return nodes.at(i);
-		}
-	}
+//template <typename T>
+// TODO Node<T> Graph<T>::getNodeByID(unsigned int ID) const{
+//	// Running all nodes
+//	for(unsigned int i = 0; i < this->nodes.size(); i++){
+//		if(nodes.at(i).getId() == ID){
+//			return nodes.at(i);
+//		}
+//	}
+//
+//	// If the node doesn't exist, return an empty node
+//	return NULL;
+//}
 
-	// If the node doesn't exist, return NULL
-	return NULL;
+template <typename T>
+dijkstra_info<T> operator<(){
+
 }
 
 template <typename T>
-vector<Node<T>> Graph<T>::dijsktra(Node<T> startNode){
+vector<Node<T>> Graph<T>::dijsktra(Node<T> startNode, Node<T> endNode){
 
 	set<dijkstra_info> path;
 	dijkstra_info currentNode;
 
-	// Fill the set with all the node information needed
+	// Put the startNode in the set
 	for(unsigned int i = 0; i < nodes.size(); i++){
 		if(nodes.at(i) == startNode){			// If it is the start node
 			currentNode.node = nodes.at(i);		// Save it in the set
@@ -224,14 +273,15 @@ vector<Node<T>> Graph<T>::dijsktra(Node<T> startNode){
 
 			path.insert(currentNode);
 		}
+	}
 
-		else{									// If it's not the start node
-			currentNode.node = nodes.at(i);		// Save it in the set
-			currentNode.pathSize = DBL_MAX;		// With "infinite" path until there
-			currentNode.lastNode = NULL;		// With no previous node
 
-			path.insert(currentNode);
-		}
+
+	for(unsigned int i = 0; i < path.begin().pointer->node.getNumberOfEdges(); i++){
+
+
+
+
 	}
 
 
