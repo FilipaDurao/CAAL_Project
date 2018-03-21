@@ -30,6 +30,10 @@ private:
 	T value;
 	vector<Edge<T>> edges;
 
+	// Dijkstra values
+	unsigned int pathSize = DBL_MAX;
+	vector<Node<T>> path;
+
 public:
 	Node(const T &value, unsigned int ID);
 
@@ -40,6 +44,11 @@ public:
 	T getValue() const;
 	unsigned int getNumberOfEdges() const;
 	vector<Edge<T>> getEdges() const;
+
+	void setPathSize(double value);
+	void addToPath(Node<T> node);
+
+	bool operator < (Node<T> n1);
 
 };
 
@@ -115,6 +124,34 @@ vector<Edge<T>> Node<T>::getEdges() const{
 	return edges;
 }
 
+/**
+ * @brief Overload for the operator <
+ *
+ * @param n1 - Node to be compared to the current node
+ *
+ * @return True if the current node is less than the node passed by parameter, false otherwise
+ */
+template <typename T>
+bool Node<T>::operator < (Node<T> n1){
+	return (this->pathSize < n1.pathSize);
+}
+
+/**
+ * @brief Adds a certain distance to the distance of the node
+ */
+template <typename T>
+void Node<T>::setPathSize(double value){
+	this->pathSize = value;
+}
+
+/**
+ * @brief Adds a Node to the path walked to get to the Node we are in
+ */
+template <typename T>
+void Node<T>::addToPath(Node<T> node){
+	this->path.push_back(node);
+}
+
 
 
 
@@ -137,6 +174,10 @@ public:
 
 /**
  * @brief  Creates an Edge
+ *
+ * @param destiny - the node of destiny of the edge
+ * @param weight - the weight of the edge
+ *
  */
 template <typename T>
 Edge<T>::Edge(Node<T>* destiny, double weight){
@@ -144,14 +185,27 @@ Edge<T>::Edge(Node<T>* destiny, double weight){
 	this->weight = weight;
 }
 
+/**
+ * @brief Destroys an Edge
+ */
 template <typename T>
 Edge<T>::~Edge(){}
 
+/**
+ * @brief Returns the Node to which the Edge points to
+ *
+ * @return Node at the end of the Edge
+ */
 template <typename T>
 Node<T>* Edge<T>::getDestiny() const{
 	return destiny;
 }
 
+/**
+ * @brief Returns the weight of the Edge
+ *
+ * @return The weight of the Edge
+ */
 template <typename T>
 double Edge<T>::getWeight() const{
 	return weight;
@@ -180,42 +234,48 @@ public:
 	vector<Node<T>> getNodes() const;
 	void addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight);
 
-//	TODO Information to save during dijkstra run
-struct dijkstra_info {
-	Node<T> node;
-	unsigned int pathSize;
-	Node<T> lastNode;
-
-	bool operator < (struct dijkstra_info dNode){
-		return (this->pathSize < dNode.pathSize);
-	}
+	vector<Node<T>> dijkstra(Node<T> startNode, Node<T> endNode);
 };
 
-// TODO Dijkstra algorithm in the graph
-vector<Node<T>> dijsktra(Node<T> startNode, Node<T> endNode);
-
-};
-
+/**
+ * @brief Creates a Graph
+ */
 template <typename T>
 Graph<T>::Graph(){}
 
+/**
+ * @brief Destroys a Graph
+ */
 template <typename T>
 Graph<T>::~Graph(){
 	nodes.clear();
 }
 
+/**
+ * @brief Creates a Node and adds it to the Graph
+ *
+ * @param nodeData - the data with which we create a Node
+ */
 template <typename T>
 void Graph<T>::addNode(T nodeData){
 	nodes.push_back(Node<T>(nodeData , nodes.size()));
 }
 
-//Get the number of nodes in the graph
+/**
+ * @brief Gets the number of Nodes in the Graph
+ *
+ * @return The size of the Nodes vector in the Graph
+ */
 template <typename T>
 unsigned int Graph<T>::getNumNodes() const{
 	return nodes.size();
 }
 
-// Get the number of edges in the graph
+/**
+ * @brief Gets the number of Edges in the Graph
+ *
+ * @return The sum of all the Edges in all the Nodes in the Graph
+ */
 template <typename T>
 unsigned int Graph<T>::getNumEdges() const{
 	unsigned int size = 0;
@@ -226,13 +286,23 @@ unsigned int Graph<T>::getNumEdges() const{
 	return size;
 }
 
-//Return all the nodes in the graph
+/**
+ * @brief Returns all the Nodes in the Graph
+ *
+ * @return a vector equal to the Nodes vector in Graph
+ */
 template <typename T>
 vector<Node<T>> Graph<T>::getNodes() const{
 	return this->nodes;
 }
 
-//Add an edge
+/**
+ * @brief Creates an Edge and adds it to a certain existing Node
+ *
+ * @param sourceNodeID - the ID of the source Node of the Edge
+ * @param destinyNodeID - the ID of the destiny Node of the Edge
+ * @param weight - the weight of the Edge
+ */
 template <typename T>
 void Graph<T>::addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight){
 	Edge<T> edge(&nodes.at(destinyNodeID), weight);		// Create the edge (the node's ids are their place in the vector)
@@ -248,44 +318,58 @@ void Graph<T>::addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, do
 //			return nodes.at(i);
 //		}
 //	}
+
 //
 //	// If the node doesn't exist, return an empty node
 //	return NULL;
 //}
 
+/**
+ * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode
+ *
+ * @param startNode - the beginning Node of the path
+ * @param endNode - the end Node of the path
+ *
+ * @return
+ */
+//TODO finish dijkstra function
 template <typename T>
-dijkstra_info<T> operator<(){
+vector<Node<T>> Graph<T>::dijkstra(Node<T> startNode, Node<T> endNode){
+
+//	set<Node<T>> path;
+//	Node<T> currentNode;
+//
+//	// Put the startNode in the set
+//	for(unsigned int i = 0; i < nodes.size(); i++){
+//		if(nodes.at(i) == startNode){			// If it is the start node
+//			currentNode.node = nodes.at(i);
+//			currentNode.pathSize = 0;			// The path walked until there was none
+//			path.insert(currentNode);			// Save it in the set
+//		}
+//	}
+//
+//	while(!path.empty()){
+//		Node<T> minNode = path.begin();
+//
+//		for(unsigned int i = 0; i < minNode.getNumberOfEdges(); i++){
+//			// If the path that the node already has is bigger than the one we are running, update
+//			int oldDist = minNode.getEdges().at(i).destiny->pathSize;
+//			if(oldDist > minNode.pathSize + minNode.getEdges().at(i).getWeight()){
+//				minNode.getEdges().at(i).destiny->setPathSize(minNode.pathSize + minNode.getEdges().at(i).getWeight());
+//				minNode.addToPath()
+//			}
+//		}
+//
+//
+//	}
+
+
 
 }
 
-template <typename T>
-vector<Node<T>> Graph<T>::dijsktra(Node<T> startNode, Node<T> endNode){
-
-	set<dijkstra_info> path;
-	dijkstra_info currentNode;
-
-	// Put the startNode in the set
-	for(unsigned int i = 0; i < nodes.size(); i++){
-		if(nodes.at(i) == startNode){			// If it is the start node
-			currentNode.node = nodes.at(i);		// Save it in the set
-			currentNode.pathSize = 0;			// The path walked until there was none
-			currentNode.lastNode = -1;			// It has no previous node
-
-			path.insert(currentNode);
-		}
-	}
 
 
 
-	for(unsigned int i = 0; i < path.begin().pointer->node.getNumberOfEdges(); i++){
-
-
-
-
-	}
-
-
-}
 
 
 #endif /* GRAPH_H_ */
