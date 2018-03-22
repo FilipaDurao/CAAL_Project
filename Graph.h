@@ -172,6 +172,10 @@ public:
 
 /**
  * @brief  Creates an Edge
+ *
+ * @param destiny - the node of destiny of the edge
+ * @param weight - the weight of the edge
+ *
  */
 template<typename T>
 Edge<T>::Edge(Node<T>* destiny, double weight) {
