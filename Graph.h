@@ -13,22 +13,27 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <unordered_map>
+#include <utility>
+#include <algorithm>
 
 using namespace std;
 
-template <typename T>
+template<typename T>
 class Edge;
-
 
 //////////////////////////////////////////////////////////////////////////////////
 /////								NODE									 /////
 //////////////////////////////////////////////////////////////////////////////////
-template <typename T>
+template<typename T>
 class Node {
 private:
 	unsigned int ID;
 	T value;
 	vector<Edge<T>> edges;
+
+	double distance;
+	Node * lastNode;
 
 public:
 	Node(const T &value, unsigned int ID);
@@ -41,7 +46,38 @@ public:
 	unsigned int getNumberOfEdges() const;
 	vector<Edge<T>> getEdges() const;
 
+	// ---- DIJKSTRA INFO ----
+	double getDistance() const;
+	void setDistance(double distance);
+	Node* getLastNode();
+	void setLastNode(Node* lastNode);
+	void clearLastNode();
 };
+
+template<typename T>
+void Node<T>::clearLastNode() {
+	this->lastNode = NULL;
+}
+
+template<typename T>
+Node<T>* Node<T>::getLastNode() {
+	return this->lastNode;
+}
+
+template<typename T>
+void Node<T>::setLastNode(Node* lastNode) {
+	this->lastNode = lastNode;
+}
+
+template<typename T>
+double Node<T>::getDistance() const {
+	return this->distance;
+}
+
+template<typename T>
+void Node<T>::setDistance(double distance) {
+	this->distance = distance;
+}
 
 /**
  * @brief Creates a node
@@ -51,17 +87,19 @@ public:
  * @param ID - the node's ID
  *
  */
-template <typename T>
-Node<T>::Node(const T &value, unsigned int ID){
-		this->value = value;
-		this->ID = ID;
+template<typename T>
+Node<T>::Node(const T &value, unsigned int ID) {
+	this->value = value;
+	this->ID = ID;
+	this->distance = DBL_MAX;
+	this->lastNode = NULL;
 }
 
 /**
  * @brief Destroys a node
  */
-template <typename T>
-Node<T>::~Node(){
+template<typename T>
+Node<T>::~Node() {
 	edges.clear();
 }
 
@@ -70,8 +108,8 @@ Node<T>::~Node(){
  *
  * @param edge - a generic edge to add to the node
  */
-template <typename T>
-void Node<T>::addEdge(Edge<T> edge){
+template<typename T>
+void Node<T>::addEdge(Edge<T> edge) {
 	edges.push_back(edge);
 }
 
@@ -80,7 +118,7 @@ void Node<T>::addEdge(Edge<T> edge){
  *
  * @return ID
  */
-template <typename T>
+template<typename T>
 unsigned int Node<T>::getId() const {
 	return ID;
 }
@@ -90,8 +128,8 @@ unsigned int Node<T>::getId() const {
  *
  * @return Value
  */
-template <typename T>
-T Node<T>::getValue() const{
+template<typename T>
+T Node<T>::getValue() const {
 	return this->value;
 }
 
@@ -100,8 +138,8 @@ T Node<T>::getValue() const{
  *
  * @return Number of edges
  */
-template <typename T>
-unsigned int Node<T>::getNumberOfEdges() const{
+template<typename T>
+unsigned int Node<T>::getNumberOfEdges() const {
 	return this->edges.size();
 }
 
@@ -110,18 +148,15 @@ unsigned int Node<T>::getNumberOfEdges() const{
  *
  * @return Vector with the node's edges
  */
-template <typename T>
-vector<Edge<T>> Node<T>::getEdges() const{
+template<typename T>
+vector<Edge<T>> Node<T>::getEdges() const {
 	return edges;
 }
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////
 /////								EDGE									 /////
 //////////////////////////////////////////////////////////////////////////////////
-template <typename T>
+template<typename T>
 class Edge {
 private:
 	Node<T>* destiny;
@@ -138,35 +173,33 @@ public:
 /**
  * @brief  Creates an Edge
  */
-template <typename T>
-Edge<T>::Edge(Node<T>* destiny, double weight){
+template<typename T>
+Edge<T>::Edge(Node<T>* destiny, double weight) {
 	this->destiny = destiny;
 	this->weight = weight;
 }
 
-template <typename T>
-Edge<T>::~Edge(){}
+template<typename T>
+Edge<T>::~Edge() {
+}
 
-template <typename T>
-Node<T>* Edge<T>::getDestiny() const{
+template<typename T>
+Node<T>* Edge<T>::getDestiny() const {
 	return destiny;
 }
 
-template <typename T>
-double Edge<T>::getWeight() const{
+template<typename T>
+double Edge<T>::getWeight() const {
 	return weight;
 }
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////
 /////								GRAPH									 /////
 //////////////////////////////////////////////////////////////////////////////////
-template <typename T>
+template<typename T>
 class Graph {
 private:
-	vector<Node<T>> nodes;
+	vector<Node<T> *> nodes;
 
 public:
 	Graph();
@@ -174,118 +207,143 @@ public:
 	virtual ~Graph();
 
 	void addNode(T nodeData);
-	unsigned int getNumNodes() const;				//Get the number of nodes in the graph
+	unsigned int getNumNodes() const;	//Get the number of nodes in the graph
 	// TODO Node<T> getNodeByID(unsigned int ID) const;		//Get one node of the graph by its ID
-	unsigned int getNumEdges() const; 				// Get the number of edges in the graph
-	vector<Node<T>> getNodes() const;
-	void addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight);
-
-//	TODO Information to save during dijkstra run
-struct dijkstra_info {
-	Node<T> node;
-	unsigned int pathSize;
-	Node<T> lastNode;
-
-	bool operator < (struct dijkstra_info dNode){
-		return (this->pathSize < dNode.pathSize);
-	}
-};
+	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
+	vector<Node<T> *> getNodes() const;
+	void addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
+			double weight);
 
 // TODO Dijkstra algorithm in the graph
-vector<Node<T>> dijsktra(Node<T> startNode, Node<T> endNode);
+	void dijsktra(Node<T> * startNode, Node<T> * endNode);
 
 };
 
-template <typename T>
-Graph<T>::Graph(){}
+/**
+ * @brief Creates an Edge and adds it to a certain existing Node
+ *
+ * @param sourceNodeID - the ID of the source Node of the Edge
+ * @param destinyNodeID - the ID of the destiny Node of the Edge
+ * @param weight - the weight of the Edge
+ */
+template<typename T>
+void Graph<T>::addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
+		double weight) {
+	Edge<T> edge(nodes.at(destinyNodeID), weight);// Create the edge (the node's ids are their place in the vector)
+	nodes.at(sourceNodeID)->addEdge(edge);			// Add the edge to the node
+}
 
-template <typename T>
-Graph<T>::~Graph(){
+template<typename T>
+Graph<T>::Graph() {
+}
+
+template<typename T>
+Graph<T>::~Graph() {
 	nodes.clear();
 }
 
-template <typename T>
-void Graph<T>::addNode(T nodeData){
-	nodes.push_back(Node<T>(nodeData , nodes.size()));
+template<typename T>
+void Graph<T>::addNode(T nodeData) {
+	nodes.push_back(new Node<T>(nodeData, nodes.size()));
 }
 
 //Get the number of nodes in the graph
-template <typename T>
-unsigned int Graph<T>::getNumNodes() const{
+template<typename T>
+unsigned int Graph<T>::getNumNodes() const {
 	return nodes.size();
 }
 
 // Get the number of edges in the graph
-template <typename T>
-unsigned int Graph<T>::getNumEdges() const{
+template<typename T>
+unsigned int Graph<T>::getNumEdges() const {
 	unsigned int size = 0;
 
-	for(unsigned int i = 0; i < nodes.size(); i++){
-		size += nodes.at(i).getNumberOfEdges();
+	for (unsigned int i = 0; i < nodes.size(); i++) {
+		size += nodes.at(i)->getNumberOfEdges();
 	}
 	return size;
 }
 
 //Return all the nodes in the graph
-template <typename T>
-vector<Node<T>> Graph<T>::getNodes() const{
+template<typename T>
+vector<Node<T> *> Graph<T>::getNodes() const {
 	return this->nodes;
 }
 
-//Add an edge
-template <typename T>
-void Graph<T>::addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight){
-	Edge<T> edge(&nodes.at(destinyNodeID), weight);		// Create the edge (the node's ids are their place in the vector)
-	nodes.at(sourceNodeID).addEdge(edge);				// Add the edge to the node
-}
 
-//Get one node of the graph by its ID
-//template <typename T>
-// TODO Node<T> Graph<T>::getNodeByID(unsigned int ID) const{
-//	// Running all nodes
-//	for(unsigned int i = 0; i < this->nodes.size(); i++){
-//		if(nodes.at(i).getId() == ID){
-//			return nodes.at(i);
-//		}
-//	}
-//
-//	// If the node doesn't exist, return an empty node
-//	return NULL;
-//}
+/*
+ * Max heap by default has the highest value on the top of the heap
+ * Since we want the minimum, in terms of distance, we must define the operator in the reverse orded
+ *
+ */
+template<typename T>
+struct compareDistance {
+	bool operator()(Node<T> * rhs, Node<T> * lhs) const {
+		return rhs->getDistance() > lhs->getDistance();
+	}
+};
 
-template <typename T>
-dijkstra_info<T> operator<(){
+template<typename T>
+void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
-}
+	vector<Node<T> *> path = {};
 
-template <typename T>
-vector<Node<T>> Graph<T>::dijsktra(Node<T> startNode, Node<T> endNode){
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
+		(*it)->setDistance(DBL_MAX);
+		(*it)->clearLastNode();
+	}
 
-	set<dijkstra_info> path;
-	dijkstra_info currentNode;
+	startNode->setDistance(0);
 
-	// Put the startNode in the set
-	for(unsigned int i = 0; i < nodes.size(); i++){
-		if(nodes.at(i) == startNode){			// If it is the start node
-			currentNode.node = nodes.at(i);		// Save it in the set
-			currentNode.pathSize = 0;			// The path walked until there was none
-			currentNode.lastNode = -1;			// It has no previous node
+	path.push_back(startNode);
 
-			path.insert(currentNode);
+	//making the heap, since it only has one element does not need the function
+	make_heap(path.begin(), path.end());
+
+	while (!path.empty()) {
+
+
+		//the miminum value is always in the top
+		Node<T> * v = path.front();
+
+		//putting the min value (considered the max since we swap the operator) in the back
+		pop_heap(path.begin(), path.end());
+
+		//removing it
+		path.pop_back();
+
+		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
+
+			Node<T> * w = it->getDestiny();
+
+			double new_distance = v->getDistance() + it->getWeight();
+
+			double old_distance = w->getDistance();
+
+			if (old_distance > new_distance) {
+
+				w->setDistance(new_distance);
+				w->setLastNode(v);
+
+				if (old_distance == DBL_MAX) {  //aka is not in the path
+
+					path.push_back(w);
+				}
+
+				make_heap(path.begin(), path.end(), compareDistance<T>());
+
+			}
 		}
-	}
-
-
-
-	for(unsigned int i = 0; i < path.begin().pointer->node.getNumberOfEdges(); i++){
-
-
-
 
 	}
 
+
+	//TODO REMOVE THIS, TEST PURPOSES ONLY
+	for(auto it = this->nodes.begin(); it != this->nodes.end(); it++){
+		if((*it)->getLastNode() != NULL)
+		cout << (*it)->getId() << "-> " << (*it)->getLastNode()->getId() << endl;
+	}
 
 }
-
 
 #endif /* GRAPH_H_ */
