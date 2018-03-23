@@ -245,7 +245,7 @@ public:
 			double weight);
 
 // TODO Dijkstra algorithm in the graph
-	void dijsktra(Node<T> * startNode, Node<T> * endNode);
+	Node<T> * dijsktra(Node<T> * startNode, Node<T> * endNode);
 
 };
 
@@ -270,7 +270,7 @@ Graph<T>::~Graph(){
  */
 template <typename T>
 void Graph<T>::addNode(T nodeData){
-	nodes.push_back(Node<T>(nodeData , nodes.size()));
+	this->nodes.push_back(new Node<T> (nodeData, nodes.size()));
 }
 
 /**
@@ -347,7 +347,7 @@ struct compareDistance {
  * @return
  */
 template<typename T>
-void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
+Node<T> * Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
 	vector<Node<T> *> path = {};
 
@@ -395,12 +395,7 @@ void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
 	}
 
-	//TODO REMOVE THIS, TEST PURPOSES ONLY
-	for(auto it = this->nodes.begin(); it != this->nodes.end(); it++){
-		if((*it)->getLastNode() != NULL)
-		cout << (*it)->getId() << "-> " << (*it)->getLastNode()->getId() << endl;
-	}
-
+	return endNode;
 }
 
 #endif /* GRAPH_H_ */

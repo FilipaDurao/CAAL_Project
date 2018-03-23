@@ -61,8 +61,20 @@ int main(){
 	grafo.addEdge(4, 2, 1);
 
 	vector<Node<string> *> nodes = grafo.getNodes();
+	Node<string>* lastNode = grafo.dijsktra(nodes.at(0), nodes.at(2));
 
-	grafo.dijsktra(nodes.at(0), nodes.at(4));
+	Node<string>* currentNode = lastNode;
+	cout << currentNode->getDistance() << endl << endl;
+
+	while (true){
+
+		if(currentNode == nodes.at(0)){
+			break;
+		}
+
+		cout << currentNode->getValue() << endl;
+		currentNode = currentNode->getLastNode();
+	}
 
 
 }
