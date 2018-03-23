@@ -270,7 +270,7 @@ Graph<T>::~Graph(){
  */
 template <typename T>
 void Graph<T>::addNode(T nodeData){
-	nodes.push_back(Node<T>(nodeData , nodes.size()));
+	nodes.push_back(new Node<T>(nodeData , nodes.size()));
 }
 
 /**
