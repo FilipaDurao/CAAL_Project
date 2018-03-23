@@ -54,31 +54,6 @@ public:
 	void clearLastNode();
 };
 
-template<typename T>
-void Node<T>::clearLastNode() {
-	this->lastNode = NULL;
-}
-
-template<typename T>
-Node<T>* Node<T>::getLastNode() {
-	return this->lastNode;
-}
-
-template<typename T>
-void Node<T>::setLastNode(Node* lastNode) {
-	this->lastNode = lastNode;
-}
-
-template<typename T>
-double Node<T>::getDistance() const {
-	return this->distance;
-}
-
-template<typename T>
-void Node<T>::setDistance(double distance) {
-	this->distance = distance;
-}
-
 /**
  * @brief Creates a node
  * The node's ID will be its place in the node's vector in graph, for easier access
@@ -153,6 +128,57 @@ vector<Edge<T>> Node<T>::getEdges() const {
 	return edges;
 }
 
+/**
+ * @brief Clears the lastNode (for Dijkstra running)
+ */
+template<typename T>
+void Node<T>::clearLastNode() {
+	this->lastNode = NULL;
+}
+
+/**
+ * @brief Returns the LastNode info for Dijkstra
+ *
+ * @return Last Node
+ */
+template<typename T>
+Node<T>* Node<T>::getLastNode() {
+	return this->lastNode;
+}
+
+/**
+ * @brief Sets the lastNode atributte with lastNode passed by parameter
+ *
+ * @param lastNode - a Node
+ */
+template<typename T>
+void Node<T>::setLastNode(Node* lastNode) {
+	this->lastNode = lastNode;
+}
+
+/**
+ * @brief Returns the current path distance to get to this Node
+ *
+ * @return distance
+ */
+template<typename T>
+double Node<T>::getDistance() const {
+	return this->distance;
+}
+
+/**
+ * @brief Sets the distance travelled to get to this Node
+ *
+ * @param distance
+ */
+template<typename T>
+void Node<T>::setDistance(double distance) {
+	this->distance = distance;
+}
+
+
+
+
 //////////////////////////////////////////////////////////////////////////////////
 /////								EDGE									 /////
 //////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +250,65 @@ public:
 };
 
 /**
+ * @brief Creates a Graph
+ */
+template <typename T>
+Graph<T>::Graph(){}
+
+/**
+ * @brief Destroys a Graph
+ */
+template <typename T>
+Graph<T>::~Graph(){
+	nodes.clear();
+}
+
+/**
+ * @brief Creates a Node and adds it to the Graph
+ *
+ * @param nodeData - the data with which we create a Node
+ */
+template <typename T>
+void Graph<T>::addNode(T nodeData){
+	nodes.push_back(Node<T>(nodeData , nodes.size()));
+}
+
+/**
+ * @brief Gets the number of Nodes in the Graph
+ *
+ * @return The size of the Nodes vector in the Graph
+ */
+template <typename T>
+unsigned int Graph<T>::getNumNodes() const{
+	return nodes.size();
+}
+
+/**
+ * @brief Gets the number of Edges in the Graph
+ *
+ * @return The sum of all the Edges in all the Nodes in the Graph
+ */
+template <typename T>
+unsigned int Graph<T>::getNumEdges() const{
+	unsigned int size = 0;
+
+	for(unsigned int i = 0; i < nodes.size(); i++){
+		size += nodes.at(i).getNumberOfEdges();
+	}
+	return size;
+}
+
+/**
+ * @brief Returns all the Nodes in the Graph
+ *
+ * @return a vector equal to the Nodes vector in Graph
+ */
+template<typename T>
+vector<Node<T> *> Graph<T>::getNodes() const {
+	return this->nodes;
+}
+
+/**
  * @brief Creates an Edge and adds it to a certain existing Node
  *
  * @param sourceNodeID - the ID of the source Node of the Edge
@@ -237,42 +322,8 @@ void Graph<T>::addEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
 	nodes.at(sourceNodeID)->addEdge(edge);			// Add the edge to the node
 }
 
-template<typename T>
-Graph<T>::Graph() {
-}
 
-template<typename T>
-Graph<T>::~Graph() {
-	nodes.clear();
-}
 
-template<typename T>
-void Graph<T>::addNode(T nodeData) {
-	nodes.push_back(new Node<T>(nodeData, nodes.size()));
-}
-
-//Get the number of nodes in the graph
-template<typename T>
-unsigned int Graph<T>::getNumNodes() const {
-	return nodes.size();
-}
-
-// Get the number of edges in the graph
-template<typename T>
-unsigned int Graph<T>::getNumEdges() const {
-	unsigned int size = 0;
-
-	for (unsigned int i = 0; i < nodes.size(); i++) {
-		size += nodes.at(i)->getNumberOfEdges();
-	}
-	return size;
-}
-
-//Return all the nodes in the graph
-template<typename T>
-vector<Node<T> *> Graph<T>::getNodes() const {
-	return this->nodes;
-}
 
 
 /*
@@ -287,6 +338,14 @@ struct compareDistance {
 	}
 };
 
+/**
+ * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode
+ *
+ * @param startNode - the beginning Node of the path
+ * @param endNode - the end Node of the path
+ *
+ * @return
+ */
 template<typename T>
 void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
@@ -298,14 +357,12 @@ void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 	}
 
 	startNode->setDistance(0);
-
 	path.push_back(startNode);
 
 	//making the heap, since it only has one element does not need the function
 	make_heap(path.begin(), path.end());
 
 	while (!path.empty()) {
-
 
 		//the miminum value is always in the top
 		Node<T> * v = path.front();
@@ -319,9 +376,7 @@ void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
 			Node<T> * w = it->getDestiny();
-
 			double new_distance = v->getDistance() + it->getWeight();
-
 			double old_distance = w->getDistance();
 
 			if (old_distance > new_distance) {
@@ -330,7 +385,6 @@ void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 				w->setLastNode(v);
 
 				if (old_distance == DBL_MAX) {  //aka is not in the path
-
 					path.push_back(w);
 				}
 
@@ -340,7 +394,6 @@ void Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 		}
 
 	}
-
 
 	//TODO REMOVE THIS, TEST PURPOSES ONLY
 	for(auto it = this->nodes.begin(); it != this->nodes.end(); it++){
