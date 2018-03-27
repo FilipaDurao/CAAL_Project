@@ -210,15 +210,28 @@ Edge<T>::Edge(Node<T>* destiny, double weight) {
 	this->weight = weight;
 }
 
+/**
+ * @brief Destroys an Edge
+ */
 template<typename T>
 Edge<T>::~Edge() {
 }
 
+/**
+ * @brief Returns the destiny of an Edge
+ *
+ * @return the Node that is in the end of the Edge
+ */
 template<typename T>
 Node<T>* Edge<T>::getDestiny() const {
 	return destiny;
 }
 
+/**
+ * @brief Returns the weight of an Edge
+ *
+ * @return the weigth of the Edge
+ */
 template<typename T>
 double Edge<T>::getWeight() const {
 	return weight;
@@ -350,7 +363,7 @@ struct compareDistance {
 template<typename T>
 Node<T> * Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
-	vector<Node<T> *> path = { };
+	vector<Node<T> *> path = {};
 
 	//priority_queue <Node<T> *, vector< Node<T> * >, compareNodes<T> > building_path;
 
