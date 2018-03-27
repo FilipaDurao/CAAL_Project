@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <utility>
 #include <algorithm>
+#include <queue>
 
 using namespace std;
 
@@ -349,7 +350,9 @@ struct compareDistance {
 template<typename T>
 Node<T> * Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
-	vector<Node<T> *> path = {};
+	vector<Node<T> *> path = { };
+
+	//priority_queue <Node<T> *, vector< Node<T> * >, compareNodes<T> > building_path;
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 		(*it)->setDistance(DBL_MAX);
