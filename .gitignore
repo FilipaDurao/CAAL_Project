@@ -31,4 +31,10 @@
 *.out
 *.app
 
+#Web code (for doxyfile avoidance)
+*.html
+*.js
+*.css
+*.png
+
 .vscode
