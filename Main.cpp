@@ -8,9 +8,13 @@
 #include <iostream>
 #include "Graph.h"
 
+const string BUS = "bus";
+const string METRO = "metro";
+const string WALK = "walk";
+
 using namespace std;
 
-int main(){
+int main() {
 
 	Graph<string> grafo;
 
@@ -40,12 +44,11 @@ int main(){
 //	cout << "Destiny: " << edges.at(0).getDestiny()->getValue() << endl;
 //	cout << "Distance: " << nodes.at(0).getEdges().at(0).getWeight();
 
-
-	string stop0 = "Estacao 0";
-	string stop1 = "Estacao 1";
-	string stop2 = "Estacao 2";
-	string stop3 = "Estacao 3";
-	string stop4 = "Estacao 4";
+	string stop0 = "São Bento";
+	string stop1 = "Aliados";
+	string stop2 = "Faria Guimarães";
+	string stop3 = "Marquês";
+	string stop4 = "Combatentes";
 
 	grafo.addNode(stop0);
 	grafo.addNode(stop1);
@@ -53,29 +56,22 @@ int main(){
 	grafo.addNode(stop3);
 	grafo.addNode(stop4);
 
-
-	grafo.addEdge(0, 1, 2);
-	grafo.addEdge(0, 2, 8);
-	grafo.addEdge(1, 3, 1);
-	grafo.addEdge(3, 4, 1);
-	grafo.addEdge(4, 2, 1);
+	grafo.addBusEdge(0, 1, 2);
+	grafo.addWalkEdge(0, 2, 8);
+	grafo.addMetroEdge(1, 3, 1);
+	grafo.addBusEdge(3, 4, 1);
+	grafo.addWalkEdge(4, 2, 1);
 
 	vector<Node<string> *> nodes = grafo.getNodes();
-	Node<string>* lastNode = grafo.dijsktra(nodes.at(0), nodes.at(4));
+	Node<string>* lastNode = grafo.dijkstra_queue(nodes.at(0), nodes.at(2));
 
-	Node<string>* currentNode = lastNode;
-	cout << currentNode->getDistance() << endl << endl;
+	vector<string> t = grafo.getPath(lastNode);
 
-	while (true){
-
-		cout << currentNode->getValue() << endl;
-
-		if(currentNode == nodes.at(0)){
-			break;
-		}
-
-		currentNode = currentNode->getLastNode();
+	for (size_t i = 0; i < t.size(); i++) {
+		if (i < (t.size() - 1))
+			cout << t.at(i) << "->";
+		else
+			cout << t.at(i);
 	}
-
 
 }
