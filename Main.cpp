@@ -41,11 +41,11 @@ int main(){
 //	cout << "Distance: " << nodes.at(0).getEdges().at(0).getWeight();
 
 
-	string stop0 = "0";
-	string stop1 = "1";
-	string stop2 = "2";
-	string stop3 = "3";
-	string stop4 = "4";
+	string stop0 = "Estacao 0";
+	string stop1 = "Estacao 1";
+	string stop2 = "Estacao 2";
+	string stop3 = "Estacao 3";
+	string stop4 = "Estacao 4";
 
 	grafo.addNode(stop0);
 	grafo.addNode(stop1);
@@ -61,18 +61,19 @@ int main(){
 	grafo.addEdge(4, 2, 1);
 
 	vector<Node<string> *> nodes = grafo.getNodes();
-	Node<string>* lastNode = grafo.dijsktra(nodes.at(0), nodes.at(2));
+	Node<string>* lastNode = grafo.dijsktra(nodes.at(0), nodes.at(4));
 
 	Node<string>* currentNode = lastNode;
 	cout << currentNode->getDistance() << endl << endl;
 
 	while (true){
 
+		cout << currentNode->getValue() << endl;
+
 		if(currentNode == nodes.at(0)){
 			break;
 		}
 
-		cout << currentNode->getValue() << endl;
 		currentNode = currentNode->getLastNode();
 	}
 

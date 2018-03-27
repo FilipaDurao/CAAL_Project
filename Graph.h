@@ -33,7 +33,7 @@ private:
 	vector<Edge<T>> edges;
 
 	double distance;
-	Node * lastNode;
+	Node<T> * lastNode;
 
 public:
 	Node(const T &value, unsigned int ID);
@@ -362,10 +362,15 @@ Node<T> * Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 	//making the heap, since it only has one element does not need the function
 	make_heap(path.begin(), path.end());
 
+	Node<T> * v;
+	Node<T> * w;
+	double new_distance;
+	double old_distance;
+
 	while (!path.empty()) {
 
 		//the miminum value is always in the top
-		Node<T> * v = path.front();
+		v = path.front();
 
 		//putting the min value (considered the max since we swap the operator) in the back
 		pop_heap(path.begin(), path.end());
@@ -375,9 +380,9 @@ Node<T> * Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
-			Node<T> * w = it->getDestiny();
-			double new_distance = v->getDistance() + it->getWeight();
-			double old_distance = w->getDistance();
+			w = it->getDestiny();
+			new_distance = v->getDistance() + it->getWeight();
+			old_distance = w->getDistance();
 
 			if (old_distance > new_distance) {
 
@@ -392,7 +397,6 @@ Node<T> * Graph<T>::dijsktra(Node<T> * startNode, Node<T> * endNode) {
 
 			}
 		}
-
 	}
 
 	return endNode;
