@@ -635,6 +635,55 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 }
 
 template<class T>
+Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
+
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
+		(*it)->setDistance(DBL_MAX);
+		(*it)->clearLastNode();
+		(*it)->setVisited(false);
+	}
+
+	startNode->setDistance(0);
+
+	MutablePriorityQueue<Node<T> > q;
+
+	q.insert(startNode);
+
+	while (!q.empty()) {
+
+		Node<T> * v = q.extractMin();
+
+		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
+
+			Node<T> * w = it->getDestiny();
+
+			double old_distance = w->getDistance();
+
+			double new_distance = v->getDistance() + it->getWeight();
+
+			if (old_distance > new_distance) {
+
+				w->setDistance(new_distance);
+
+				w->setLastNode(v);
+
+				if (!w->getVisited())
+					q.insert(w);
+				else
+					q.decreaseKey(w);
+
+				w->setVisited(true);
+			}
+
+		}
+
+	}
+
+	return endNode;
+
+}
+
+template<class T>
 vector<T> Graph<T>::getPath(Node<T> * dest) const {
 
 	vector<T> res;
