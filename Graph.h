@@ -69,36 +69,6 @@ public:
 	int queueIndex = 0;
 };
 
-template<typename T>
-void Node<T>::setInfo(T info) {
-	this->info = info;
-}
-
-/**
- * @brief  Returns the node's information
- *
- * @return info
- */
-template<typename T>
-T Node<T>::getInfo() const {
-	return this->info;
-}
-
-template<typename T>
-void Node<T>::setVisited(bool vis) {
-	this->visited = vis;
-}
-
-template<typename T>
-bool Node<T>::getVisited() const {
-	return this->visited;
-}
-
-template<typename T>
-bool Node<T>::operator<(Node<T> & node) const {
-	return this->distance < node.distance;
-}
-
 /**
  * @brief Creates a node
  * The node's ID will be its place in the node's vector in graph, for easier access
@@ -211,6 +181,59 @@ template<typename T>
 void Node<T>::setDistance(double distance) {
 	this->distance = distance;
 }
+
+/**
+ * @brief Set the Node information
+ *
+ * @param info - the information to set in the Node
+ */
+template<typename T>
+void Node<T>::setInfo(T info) {
+	this->info = info;
+}
+
+/**
+ * @brief  Returns the node's information
+ *
+ * @return info
+ */
+template<typename T>
+T Node<T>::getInfo() const {
+	return this->info;
+}
+
+/**
+ * @brief Sets the visited attribute on the Node
+ *
+ * @param vis - what to set
+ */
+template<typename T>
+void Node<T>::setVisited(bool vis) {
+	this->visited = vis;
+}
+
+/**
+ * @brief Gets the information on wether the Node has been visited or not
+ *
+ * @return true or false
+ */
+template<typename T>
+bool Node<T>::getVisited() const {
+	return this->visited;
+}
+
+/**
+ * @brief Operator < to be able to compare different Nodes
+ *
+ * @param node - a Node to compare to the current Node
+ *
+ * @return true or false wether the Node is minor than the one we are comparing to
+ */
+template<typename T>
+bool Node<T>::operator<(Node<T> & node) const {
+	return this->distance < node.distance;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////
 /////								EDGE									 /////
@@ -325,6 +348,14 @@ public:
 //	return this->type;
 //}
 
+/**
+ * @brief  Creates an Edge
+ *
+ * @param destiny - the node of destiny of the Edge
+ * @param weight - the weight of the Edge
+ * @param type - the type of Edge
+ *
+ */
 template<typename T>
 Edge<T>::Edge(Node<T> * destiny, double weight, string type) {
 	this->destiny = destiny;
@@ -359,6 +390,11 @@ string Edge<T>::getType() const {
 	return this->type;
 }
 
+/**
+ * @brief Returns the weight of the Edge and counts in the multiplier considering which type of transportation is
+ *
+ * @return the weight of the Edge with the correct multiplier
+ */
 template<typename T>
 double Edge<T>::getWeight() const {
 
@@ -522,12 +558,12 @@ struct compareDistance {
 };
 
 /**
- * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode
+ * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, using a heap
  *
  * @param startNode - the beginning Node of the path
  * @param endNode - the end Node of the path
  *
- * @return
+ * @return Node * - the final Node of the path, so we can walk it back to get the best path
  */
 template<typename T>
 Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
@@ -585,6 +621,14 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 	return endNode;
 }
 
+/**
+ * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue
+ *
+ * @param startNode - the beginning Node of the path
+ * @param endNode - the end Node of the path
+ *
+ * @return Node * - the final Node of the path, so we can walk it back to get the best path
+ */
 template<class T>
 Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
@@ -595,27 +639,27 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 	}
 
 	startNode->setDistance(0);
-
 	MutablePriorityQueue<Node<T> > q;
-
 	q.insert(startNode);
+
+	Node<T> * v;
+	Node<T> * w;
+	double old_distance;
+	double new_distance;
 
 	while (!q.empty()) {
 
-		Node<T> * v = q.extractMin();
+		v = q.extractMin();
 
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
-			Node<T> * w = it->getDestiny();
-
-			double old_distance = w->getDistance();
-
-			double new_distance = v->getDistance() + it->getWeight();
+			w = it->getDestiny();
+			old_distance = w->getDistance();
+			new_distance = v->getDistance() + it->getWeight();
 
 			if (old_distance > new_distance) {
 
 				w->setDistance(new_distance);
-
 				w->setLastNode(v);
 
 				if (!w->getVisited())
@@ -625,81 +669,31 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
 				w->setVisited(true);
 			}
-
 		}
-
 	}
 
 	return endNode;
-
 }
 
-template<class T>
-Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
-
-	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
-		(*it)->setDistance(DBL_MAX);
-		(*it)->clearLastNode();
-		(*it)->setVisited(false);
-	}
-
-	startNode->setDistance(0);
-
-	MutablePriorityQueue<Node<T> > q;
-
-	q.insert(startNode);
-
-	while (!q.empty()) {
-
-		Node<T> * v = q.extractMin();
-
-		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
-
-			Node<T> * w = it->getDestiny();
-
-			double old_distance = w->getDistance();
-
-			double new_distance = v->getDistance() + it->getWeight();
-
-			if (old_distance > new_distance) {
-
-				w->setDistance(new_distance);
-
-				w->setLastNode(v);
-
-				if (!w->getVisited())
-					q.insert(w);
-				else
-					q.decreaseKey(w);
-
-				w->setVisited(true);
-			}
-
-		}
-
-	}
-
-	return endNode;
-
-}
-
+/**
+ * @brief get the path to a certain Node
+ *
+ * @param dest - the destiny Node
+ *
+ * @return the vector with the full path, ordered
+ */
 template<class T>
 vector<T> Graph<T>::getPath(Node<T> * dest) const {
 
 	vector<T> res;
 
 	while (dest->getLastNode() != NULL) {
-
 		res.push_back(dest->getInfo());
-
 		dest = dest->getLastNode();
-
 	}
 
 	res.push_back(dest->getInfo());
-
 	reverse(res.begin(), res.end());
-
 	return res;
 }
 
