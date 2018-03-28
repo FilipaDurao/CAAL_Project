@@ -88,32 +88,65 @@ public:
 	int queueIndex = 0;
 
 };
-
+/**
+ * @brief Returns the node's x position
+ *
+ * @return X position
+ */
 template<typename T>
 int Node<T>::getX() const {
 	return this->x;
 }
 
+/**
+ * @brief Returns the node's y position
+ *
+ * @return Y position
+ */
 template<typename T>
 int Node<T>::getY() const {
 	return this->y;
 }
 
+/**
+ * @brief Gives the information about the last edge that connected to this node
+ *
+ * This allows us to build a more detailed description of the path
+ *
+ * @see Edge<T>::getEdgeConnection()
+ *
+ * @return string containing the information
+ */
 template<typename T>
 string Node<T>::getLastConnection() const {
 	return this->lastConnection;
 }
 
+/**
+ * @brief Sets the lastConnection attribute with lastConnection passed by parameter
+ *
+ * @param connect - a information
+ */
 template<typename T>
 void Node<T>::setLastConnection(string connect) {
 	this->lastConnection = connect;
 }
 
+/**
+ * @brief Gives the number of times a person has to change transports when it reaches this node
+ *
+ * @return number of transbords
+ */
 template<typename T>
 int Node<T>::getNumTransbords() const {
 	return this->numTransbords;
 }
 
+/**
+ * @brief Sets the numTransbords attribute with numTransbords passed by parameter
+ *
+ * @param i - the number of Transbords
+ */
 template<typename T>
 void Node<T>::setNumTransbords(int i) {
 	this->numTransbords = i;
@@ -139,6 +172,15 @@ Node<T>::Node(const T &info, unsigned int ID) {
 	this->numTransbords = 0;
 }
 
+/**
+ * @brief Creates a node
+ * The node's ID will be its place in the node's vector in graph, for easier access
+ *
+ * @param value - the node's value
+ * @param ID - the node's ID
+ * @param x - the node's x position
+ * @param y - the node's y position
+ */
 template<typename T>
 Node<T>::Node(const T &info, unsigned int ID, int x, int y) {
 	this->info = info;
@@ -218,7 +260,7 @@ Node<T>* Node<T>::getLastNode() {
 }
 
 /**
- * @brief Sets the lastNode atributte with lastNode passed by parameter
+ * @brief Sets the lastNode attribute with lastNode passed by parameter
  *
  * @param lastNode - a Node
  */
@@ -316,9 +358,17 @@ public:
 
 };
 
+/**
+ * @brief Returns a string containing information about the edge
+ *
+ * The information about a edge is its type, i.e. bus, metro or walk, and the line associated with it, e.g line 204.
+ *
+ * @return string containing the information
+ *
+ */
 template<typename T>
 string Edge<T>::getEdgeConnection() const {
-	string result = this->type + this->lineID;
+	string result = this->type + " " + this->lineID;
 
 	return result;
 }
@@ -410,6 +460,8 @@ public:
 
 	vector<T> getPath(Node<T> * dest) const;
 
+	string getDetailedPath(Node<T> * dest) const;
+
 	// ---- Dijkstra Algorithms ----
 	Node<T> * dijkstra_heap(Node<T> * startNode, Node<T> * endNode);
 	Node<T> * dijkstra_queue(Node<T> * startNode, Node<T> * endNode);
@@ -417,6 +469,14 @@ public:
 	Node<T> * dijkstra_queue_TRANSBORDS(Node<T> * startNode, Node<T> * endNode,
 			int maxNum);
 };
+
+/**TODO
+ * @brief Returns a node, given its ID
+ *
+ * @param ID - nodeID
+ *
+ * @return Pointer to the node
+ */
 
 template<typename T>
 Node<T> * Graph<T>::getNodeByID(unsigned int ID) const {
@@ -435,8 +495,8 @@ Graph<T>::Graph() {
  */
 template<typename T>
 Graph<T>::~Graph() {
-	for(auto it = this->nodes.begin(); it != this->nodes.end(); it++)
-		delete(*it);
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++)
+		delete (*it);
 	nodes.clear();
 }
 
@@ -607,7 +667,7 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 }
 
 /**
- * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue
+ * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue
  *
  * @param startNode - the beginning Node of the path
  * @param endNode - the end Node of the path
@@ -621,9 +681,11 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 		(*it)->setDistance(DBL_MAX);
 		(*it)->clearLastNode();
 		(*it)->setVisited(false);
+		(*it)->setLastConnection("NOT");
 	}
 
 	startNode->setDistance(0);
+	startNode->setLastConnection("FIRST");
 	MutablePriorityQueue<Node<T> > q;
 	q.insert(startNode);
 
@@ -649,7 +711,7 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
-
+				w->setLastConnection(it->getEdgeConnection());
 				if (!w->getVisited())
 					q.insert(w);
 				else
@@ -664,7 +726,7 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 }
 
 /**
- * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, without walking, using a mutable priority queue
+ * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, without walking, using a mutable priority queue
  *
  *
  * @param startNode - the beginning Node of the path
@@ -680,9 +742,11 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 		(*it)->setDistance(DBL_MAX);
 		(*it)->clearLastNode();
 		(*it)->setVisited(false);
+		(*it)->setLastConnection("NOT");
 	}
 
 	startNode->setDistance(0);
+	startNode->setLastConnection("FIRST");
 	MutablePriorityQueue<Node<T> > q;
 	q.insert(startNode);
 
@@ -711,6 +775,7 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
+				w->setLastConnection(it->getEdgeConnection());
 
 				if (!w->getVisited())
 					q.insert(w);
@@ -727,12 +792,14 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 }
 
 /**
- * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue,
+ * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue, and allowing
+ * only some exchanges between transports
  *
  *
  *
  * @param startNode - the beginning Node of the path
  * @param endNode - the end Node of the path
+ * @param maxNum - the maximum allowed number of transports exchanges
  *
  * @return Node * - the final Node of the path, so we can walk it back to get the best path
  */
@@ -824,6 +891,52 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
 	res.push_back(dest->getInfo());
 	reverse(res.begin(), res.end());
 	return res;
+}
+/**
+ * @brief Gives detailed Information about the path to take
+ *
+ * @param dest - the destiny Node
+ *
+ *
+ * @return string containing the information
+ */
+template<class T>
+string Graph<T>::getDetailedPath(Node<T> * dest) const {
+	string result = "";
+
+	queue<string> queue;
+
+	double total_distance = dest->getDistance();
+
+	if (dest->getLastNode() == NULL) {
+		string oops = "It is impossible to travel to ";
+		oops += dest->getInfo();
+		oops += " with those constrains!\n";
+		return oops;
+	}
+
+	while (dest->getLastNode() != NULL) {
+
+		string one_stop = "At ";
+
+		one_stop += dest->getLastNode()->getInfo() + " catch the ";
+
+		one_stop += dest->getLastConnection() + " to " + dest->getInfo() + "\n";
+
+		queue.push(one_stop);
+
+		dest = dest->getLastNode();
+
+	}
+
+	while (!queue.empty()) {
+		result = queue.front() + result;
+		queue.pop();
+	}
+
+	result += "Total Distance: " + to_string(total_distance);
+
+	return result;
 }
 
 #endif /* GRAPH_H_ */
