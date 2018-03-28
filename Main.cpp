@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "Graph.h"
+#include "Test.h"
 
 const string BUS = "bus";
 const string METRO = "metro";
@@ -73,5 +74,9 @@ int main() {
 		else
 			cout << t.at(i);
 	}
+
+//	cout << "\n\n";
+//	test_performance_dijkstra_queue();
+//	test_performance_dijkstra_heap();
 
 }

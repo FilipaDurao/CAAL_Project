@@ -19,7 +19,7 @@
 #include <queue>
 #include "MutablePriorityQueue.h"
 
-constexpr const double BUS_MULTIPLIER = 1.8;
+constexpr const double BUS_MULTIPLIER = 1.0;
 constexpr const double METRO_MULTIPLIER = 0.7;
 constexpr const double WALK_MULTIPLIER = 2.7;
 
@@ -52,7 +52,6 @@ public:
 	unsigned int getNumberOfEdges() const;
 	vector<Edge<T>> getEdges() const;
 
-	void setInfo(T info);
 	T getInfo() const;
 
 	// ---- DIJKSTRA INFO ----
@@ -67,6 +66,7 @@ public:
 	// ---- Mutable Priority Queue Info ----
 	bool operator<(Node<T> & node) const;
 	int queueIndex = 0;
+
 };
 
 /**
@@ -224,7 +224,6 @@ bool Node<T>::operator<(Node<T> & node) const {
 	return this->distance < node.distance;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////
 /////								EDGE									 /////
 //////////////////////////////////////////////////////////////////////////////////
@@ -247,96 +246,6 @@ public:
 
 	string getType() const;
 };
-
-//// ---- BUS EDGE ----
-//
-//template<typename T>
-//class BusEdge: public Edge<T> {
-//
-//public:
-//	double getWeight();
-//
-//	BusEdge(Node<T> * destiny, double weight, string type);
-//
-//	string getType() const;
-//
-//};
-//template<typename T>
-//BusEdge<T>::BusEdge(Node<T> * destiny, double weight, string type) {
-//	this->destiny = destiny;
-//	this->weight = weight;
-//	this->type = type;
-//}
-//template<typename T>
-//double BusEdge<T>::getWeight() {
-//	return this->weight * BUS_MULTIPLIER;
-//}
-//
-//template<typename T>
-//string BusEdge<T>::getType() const {
-//	return this->type;
-//}
-//
-//// ---- Metro EDGE ----
-//
-//template<typename T>
-//class MetroEdge: public virtual Edge<T> {
-//
-//public:
-//	double getWeight();
-//
-//	MetroEdge(Node<T> * destiny, double weight, string type);
-//
-//	string getType() const;
-//
-//};
-//
-//template<typename T>
-//MetroEdge<T>::MetroEdge(Node<T> * destiny, double weight, string type) {
-//	this->destiny = destiny;
-//	this->weight = weight;
-//	this->type = type;
-//}
-//
-//template<typename T>
-//double MetroEdge<T>::getWeight() {
-//	return this->weight * METRO_MULTIPLIER;
-//}
-//
-//template<typename T>
-//string MetroEdge<T>::getType() const {
-//	return this->type;
-//}
-//
-//// ---- Walk EDGE ----
-//
-//template<typename T>
-//class WalkEdge: public Edge<T> {
-//
-//public:
-//	double getWeight();
-//
-//	WalkEdge(Node<T> * destiny, double weight, string type);
-//
-//	string getType() const;
-//
-//};
-//template<typename T>
-//WalkEdge<T>::WalkEdge(Node<T> * destiny, double weight, string type) {
-//	this->destiny = destiny;
-//	this->weight = weight;
-//	this->type = type;
-//}
-//
-//template<typename T>
-//double WalkEdge<T>::getWeight() {
-//	return this->weight * WALK_MULTIPLIER;
-//}
-//
-//template<typename T>
-//string WalkEdge<T>::getType() const {
-//	return this->type;
-//}
 
 /**
  * @brief  Creates an Edge
@@ -387,7 +296,6 @@ string Edge<T>::getType() const {
  */
 template<typename T>
 double Edge<T>::getWeight() const {
-
 	if (this->type == "metro")
 		return this->weight * METRO_MULTIPLIER;
 	else if (this->type == "bus")
@@ -475,7 +383,7 @@ unsigned int Graph<T>::getNumEdges() const {
 	unsigned int size = 0;
 
 	for (unsigned int i = 0; i < nodes.size(); i++) {
-		size += nodes.at(i).getNumberOfEdges();
+		size += nodes.at(i)->getNumberOfEdges();
 	}
 	return size;
 }
@@ -558,7 +466,7 @@ struct compareDistance {
 template<typename T>
 Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 
-	vector<Node<T> *> path = {};
+	vector<Node<T> *> path = { };
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 		(*it)->setDistance(DBL_MAX);
@@ -686,5 +594,7 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
 	reverse(res.begin(), res.end());
 	return res;
 }
+
+
 
 #endif /* GRAPH_H_ */
