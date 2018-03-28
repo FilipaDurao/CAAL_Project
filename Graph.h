@@ -435,6 +435,8 @@ Graph<T>::Graph() {
  */
 template<typename T>
 Graph<T>::~Graph() {
+	for(auto it = this->nodes.begin(); it != this->nodes.end(); it++)
+		delete(*it);
 	nodes.clear();
 }
 
