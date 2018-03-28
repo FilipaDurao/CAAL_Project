@@ -183,16 +183,6 @@ void Node<T>::setDistance(double distance) {
 }
 
 /**
- * @brief Set the Node information
- *
- * @param info - the information to set in the Node
- */
-template<typename T>
-void Node<T>::setInfo(T info) {
-	this->info = info;
-}
-
-/**
  * @brief  Returns the node's information
  *
  * @return info
