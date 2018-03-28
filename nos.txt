@@ -1,0 +1,16 @@
+Sao Bento;100;100
+Trindade;200;100
+Faria Guimaraes;300;100
+Marques;400;100
+Combatentes;100;200
+Salgueiros;200;200
+Polo Universitario;300;200
+IPO;400;200
+Hospital Sao Joao;100;300
+Bolhao;200;300
+Campo 24 de Agosto;300;300
+Heroismo;400;300
+Estadio do Dragao;100;400
+Lapa;200;400
+Casa da Musica;300;400
+Carolina Michaelis;400;400

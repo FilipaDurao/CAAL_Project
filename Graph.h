@@ -65,9 +65,12 @@ public:
 	unsigned int getNumberOfEdges() const;
 	const vector<Edge<T>> & getEdges() const;
 	T getInfo() const;
+	int getX() const;
+	int getY() const;
+
+	// ---- Needed for Dijkstra with Transbordos ----
 	int getNumTransbords() const;
 	void setNumTransbords(int i);
-
 	string getLastConnection() const;
 	void setLastConnection(string connect);
 
@@ -85,6 +88,16 @@ public:
 	int queueIndex = 0;
 
 };
+
+template<typename T>
+int Node<T>::getX() const {
+	return this->x;
+}
+
+template<typename T>
+int Node<T>::getY() const {
+	return this->y;
+}
 
 template<typename T>
 string Node<T>::getLastConnection() const {
@@ -383,7 +396,7 @@ public:
 
 	void addNode(T nodeData, int x, int y);
 	unsigned int getNumNodes() const;	//Get the number of nodes in the graph
-	// TODO Node<T> getNodeByID(unsigned int ID) const;		//Get one node of the graph by its ID
+	Node<T> * getNodeByID(unsigned int ID) const;//Get one node of the graph by its ID
 	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
 	vector<Node<T> *> getNodes() const;
 
@@ -404,6 +417,11 @@ public:
 	Node<T> * dijkstra_queue_TRANSBORDS(Node<T> * startNode, Node<T> * endNode,
 			int maxNum);
 };
+
+template<typename T>
+Node<T> * Graph<T>::getNodeByID(unsigned int ID) const {
+	return this->nodes.at(ID);
+}
 
 /**
  * @brief Creates a Graph

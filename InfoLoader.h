@@ -7,3 +7,5 @@
 using namespace std;
 
 void loadNodes(Graph<string> & grafo);
+
+void loadEdges(Graph<string> & grafo);
