@@ -16,12 +16,18 @@
 #include <unordered_map>
 #include <utility>
 #include <algorithm>
+#include <climits>
+#include <string>
 #include <queue>
 #include "MutablePriorityQueue.h"
 
-constexpr const double BUS_MULTIPLIER = 1.0;
-constexpr const double METRO_MULTIPLIER = 0.7;
-constexpr const double WALK_MULTIPLIER = 2.7;
+const constexpr double BUS_MULTIPLIER = 1.0;
+const constexpr double METRO_MULTIPLIER = 0.7;
+const constexpr double WALK_MULTIPLIER = 2.7;
+
+const string BUS = "bus";
+const string WALK = "walk";
+const string METRO = "metro";
 
 using namespace std;
 
@@ -37,12 +43,19 @@ private:
 	unsigned int ID;
 	T info;
 	vector<Edge<T>> edges;
-	bool visited;
-	double distance;
+	bool visited = false;
+	double distance = DBL_MAX;
 	Node<T> * lastNode;
+	int x;
+	int y;
+
+	// ---- Needed for Dijkstra with Transbordos ----
+	int numTransbords;
+	string lastConnection = "";
 
 public:
 	Node(const T &value, unsigned int ID);
+	Node(const T &value, unsigned int ID, int x, int y);
 
 	virtual ~Node();
 
@@ -50,9 +63,13 @@ public:
 	unsigned int getId() const;
 	T getValue() const;
 	unsigned int getNumberOfEdges() const;
-	vector<Edge<T>> getEdges() const;
-
+	const vector<Edge<T>> & getEdges() const;
 	T getInfo() const;
+	int getNumTransbords() const;
+	void setNumTransbords(int i);
+
+	string getLastConnection() const;
+	void setLastConnection(string connect);
 
 	// ---- DIJKSTRA INFO ----
 	double getDistance() const;
@@ -69,6 +86,26 @@ public:
 
 };
 
+template<typename T>
+string Node<T>::getLastConnection() const {
+	return this->lastConnection;
+}
+
+template<typename T>
+void Node<T>::setLastConnection(string connect) {
+	this->lastConnection = connect;
+}
+
+template<typename T>
+int Node<T>::getNumTransbords() const {
+	return this->numTransbords;
+}
+
+template<typename T>
+void Node<T>::setNumTransbords(int i) {
+	this->numTransbords = i;
+}
+
 /**
  * @brief Creates a node
  * The node's ID will be its place in the node's vector in graph, for easier access
@@ -84,6 +121,21 @@ Node<T>::Node(const T &info, unsigned int ID) {
 	this->distance = DBL_MAX;
 	this->lastNode = NULL;
 	this->visited = false;
+	this->x = 0;
+	this->y = 0;
+	this->numTransbords = 0;
+}
+
+template<typename T>
+Node<T>::Node(const T &info, unsigned int ID, int x, int y) {
+	this->info = info;
+	this->ID = ID;
+	this->distance = DBL_MAX;
+	this->lastNode = NULL;
+	this->visited = false;
+	this->x = x;
+	this->y = y;
+	this->numTransbords = 0;
 }
 
 /**
@@ -130,7 +182,7 @@ unsigned int Node<T>::getNumberOfEdges() const {
  * @return Vector with the node's edges
  */
 template<typename T>
-vector<Edge<T>> Node<T>::getEdges() const {
+const vector<Edge<T>> & Node<T>::getEdges() const {
 	return this->edges;
 }
 
@@ -233,10 +285,11 @@ protected:
 	Node<T>* destiny;
 	double weight;
 	string type;
+	string lineID;
 
 public:
 
-	Edge(Node<T> * destiny, double weight, string type);
+	Edge(Node<T> * destiny, double weight, string type, string lineID);
 
 	virtual ~Edge();
 
@@ -245,7 +298,17 @@ public:
 	double getWeight() const;
 
 	string getType() const;
+
+	string getEdgeConnection() const;
+
 };
+
+template<typename T>
+string Edge<T>::getEdgeConnection() const {
+	string result = this->type + this->lineID;
+
+	return result;
+}
 
 /**
  * @brief  Creates an Edge
@@ -256,10 +319,11 @@ public:
  *
  */
 template<typename T>
-Edge<T>::Edge(Node<T> * destiny, double weight, string type) {
+Edge<T>::Edge(Node<T> * destiny, double weight, string type, string lineID) {
 	this->destiny = destiny;
 	this->weight = weight;
 	this->type = type;
+	this->lineID = lineID;
 }
 
 /**
@@ -296,9 +360,9 @@ string Edge<T>::getType() const {
  */
 template<typename T>
 double Edge<T>::getWeight() const {
-	if (this->type == "metro")
+	if (this->type == METRO)
 		return this->weight * METRO_MULTIPLIER;
-	else if (this->type == "bus")
+	else if (this->type == BUS)
 		return this->weight * BUS_MULTIPLIER;
 	else
 		return this->weight * WALK_MULTIPLIER;
@@ -317,7 +381,7 @@ public:
 
 	virtual ~Graph();
 
-	void addNode(T nodeData);
+	void addNode(T nodeData, int x, int y);
 	unsigned int getNumNodes() const;	//Get the number of nodes in the graph
 	// TODO Node<T> getNodeByID(unsigned int ID) const;		//Get one node of the graph by its ID
 	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
@@ -325,17 +389,20 @@ public:
 
 	// ---- Edges Types ----
 	void addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
-			double weight);
+			double weight, string lineID);
 	void addMetroEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
-			double weight);
+			double weight, string lineID);
 	void addWalkEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
-			double weight);
+			double weight, string lineID);
 
 	vector<T> getPath(Node<T> * dest) const;
 
-// TODO Dijkstra algorithm in the graph
+	// ---- Dijkstra Algorithms ----
 	Node<T> * dijkstra_heap(Node<T> * startNode, Node<T> * endNode);
 	Node<T> * dijkstra_queue(Node<T> * startNode, Node<T> * endNode);
+	Node<T> * dijkstra_queue_NO_WALK(Node<T> * startNode, Node<T> * endNode);
+	Node<T> * dijkstra_queue_TRANSBORDS(Node<T> * startNode, Node<T> * endNode,
+			int maxNum);
 };
 
 /**
@@ -359,8 +426,8 @@ Graph<T>::~Graph() {
  * @param nodeData - the data with which we create a Node
  */
 template<typename T>
-void Graph<T>::addNode(T nodeData) {
-	this->nodes.push_back(new Node<T>(nodeData, nodes.size()));
+void Graph<T>::addNode(T nodeData, int x, int y) {
+	this->nodes.push_back(new Node<T>(nodeData, nodes.size(), x, y));
 }
 
 /**
@@ -407,8 +474,8 @@ vector<Node<T> *> Graph<T>::getNodes() const {
  */
 template<typename T>
 void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
-		double weight) {
-	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, "bus");
+		double weight, string lineID) {
+	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, BUS, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
 
 }
@@ -422,8 +489,8 @@ void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
  */
 template<typename T>
 void Graph<T>::addMetroEdge(unsigned int sourceNodeID,
-		unsigned int destinyNodeID, double weight) {
-	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, "metro");
+		unsigned int destinyNodeID, double weight, string lineID) {
+	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, METRO, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
 
 }
@@ -437,9 +504,9 @@ void Graph<T>::addMetroEdge(unsigned int sourceNodeID,
  */
 template<typename T>
 void Graph<T>::addWalkEdge(unsigned int sourceNodeID,
-		unsigned int destinyNodeID, double weight) {
+		unsigned int destinyNodeID, double weight, string lineID) {
 
-	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, "walk");
+	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, WALK, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
 }
 
@@ -549,6 +616,9 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
 		v = q.extractMin();
 
+		if (v->getId() == endNode->getId())
+			break;
+
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
 			w = it->getDestiny();
@@ -559,6 +629,147 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
+
+				if (!w->getVisited())
+					q.insert(w);
+				else
+					q.decreaseKey(w);
+
+				w->setVisited(true);
+			}
+		}
+	}
+
+	return endNode;
+}
+
+/**
+ * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, without walking, using a mutable priority queue
+ *
+ *
+ * @param startNode - the beginning Node of the path
+ * @param endNode - the end Node of the path
+ *
+ * @return Node * - the final Node of the path, so we can walk it back to get the best path
+ */
+template<class T>
+Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
+		Node<T> * endNode) {
+
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
+		(*it)->setDistance(DBL_MAX);
+		(*it)->clearLastNode();
+		(*it)->setVisited(false);
+	}
+
+	startNode->setDistance(0);
+	MutablePriorityQueue<Node<T> > q;
+	q.insert(startNode);
+
+	Node<T> * v;
+	Node<T> * w;
+	double old_distance;
+	double new_distance;
+
+	while (!q.empty()) {
+
+		v = q.extractMin();
+
+		if (v->getId() == endNode->getId())
+			break;
+
+		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
+
+			if (it->getType() == WALK)
+				continue;
+
+			w = it->getDestiny();
+			old_distance = w->getDistance();
+			new_distance = v->getDistance() + it->getWeight();
+
+			if (old_distance > new_distance) {
+
+				w->setDistance(new_distance);
+				w->setLastNode(v);
+
+				if (!w->getVisited())
+					q.insert(w);
+				else
+					q.decreaseKey(w);
+
+				w->setVisited(true);
+			}
+		}
+
+	}
+
+	return endNode;
+}
+
+/**
+ * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue,
+ *
+ *
+ *
+ * @param startNode - the beginning Node of the path
+ * @param endNode - the end Node of the path
+ *
+ * @return Node * - the final Node of the path, so we can walk it back to get the best path
+ */
+template<class T>
+Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
+		Node<T> * endNode, int maxNum) {
+
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
+		(*it)->setDistance(DBL_MAX);
+		(*it)->clearLastNode();
+		(*it)->setVisited(false);
+		(*it)->setNumTransbords(INT_MAX);
+		(*it)->setLastConnection("NOT");
+	}
+
+	startNode->setDistance(0);
+	startNode->setNumTransbords(-1);
+	startNode->setLastConnection("FIRST");
+
+	MutablePriorityQueue<Node<T> > q;
+	q.insert(startNode);
+
+	Node<T> * v;
+	Node<T> * w;
+	double old_distance;
+	double new_distance;
+
+	while (!q.empty()) {
+
+		v = q.extractMin();
+
+		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
+
+			int currentTransbords = v->getNumTransbords();
+
+			/*if the method of transport used or the line has changed
+			 * must add another "transbordo"
+			 */
+			if (v->getLastConnection() != it->getEdgeConnection()) {
+
+				currentTransbords++;
+			}
+
+			if (currentTransbords > maxNum) {
+				continue;
+			}
+
+			w = it->getDestiny();
+			old_distance = w->getDistance();
+			new_distance = v->getDistance() + it->getWeight();
+
+			if (old_distance > new_distance) {
+
+				w->setDistance(new_distance);
+				w->setLastNode(v);
+				w->setLastConnection(it->getEdgeConnection());
+				w->setNumTransbords(currentTransbords);
 
 				if (!w->getVisited())
 					q.insert(w);
@@ -594,7 +805,5 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
 	reverse(res.begin(), res.end());
 	return res;
 }
-
-
 
 #endif /* GRAPH_H_ */
