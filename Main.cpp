@@ -8,10 +8,7 @@
 #include <iostream>
 #include "Graph.h"
 #include "Test.h"
-
-const string BUS = "bus";
-const string METRO = "metro";
-const string WALK = "walk";
+#include "InfoLoader.h"
 
 using namespace std;
 
@@ -51,20 +48,28 @@ int main() {
 	string stop3 = "Marquês";
 	string stop4 = "Combatentes";
 
-	grafo.addNode(stop0);
-	grafo.addNode(stop1);
-	grafo.addNode(stop2);
-	grafo.addNode(stop3);
-	grafo.addNode(stop4);
+	string line204 = "204";
+	string lineD = "D";
+	string lineA = "A";
+	string lineC = "C";
+	string line301 = "301";
+	string walk = "walk";
 
-	grafo.addBusEdge(0, 1, 2);
-	grafo.addWalkEdge(0, 2, 8);
-	grafo.addMetroEdge(1, 3, 1);
-	grafo.addBusEdge(3, 4, 1);
-	grafo.addWalkEdge(4, 2, 1);
+	grafo.addNode(stop0, 0, 1);
+	grafo.addNode(stop1, 2, 1);
+	grafo.addNode(stop2, 3, 4);
+	grafo.addNode(stop3, 5, 6);
+	grafo.addNode(stop4, 1, 3);
+
+	grafo.addBusEdge(0, 2, 4, line204);
+	grafo.addBusEdge(2, 3, 4, line301);
+	grafo.addBusEdge(0, 3, 10, line301);
+	grafo.addMetroEdge(0, 1, 1, lineA);
+	grafo.addMetroEdge(1, 3, 1, lineD);
 
 	vector<Node<string> *> nodes = grafo.getNodes();
-	Node<string>* lastNode = grafo.dijkstra_queue(nodes.at(0), nodes.at(2));
+	Node<string>* lastNode = grafo.dijkstra_queue_TRANSBORDS(nodes.at(0),
+			nodes.at(3), 1);
 
 	vector<string> t = grafo.getPath(lastNode);
 
