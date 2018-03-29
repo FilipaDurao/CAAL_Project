@@ -18,11 +18,14 @@ int main() {
 
 	vector<string> stations = loadNodes(grafo);
 	loadEdges(grafo);
-	vector<Node<string> *> nodes = grafo.getNodes();
-	Node<string>* lastNode = grafo.dijkstra_queue_TRANSBORDS(
-			grafo.getNodeByID(0), grafo.getNodeByID(5), 2);
 
-	vector<string> t = grafo.getPath(lastNode);
+	Node<string> * lastNode;
+	vector<string> t;
+
+	lastNode = grafo.dijkstra_queue_TRANSBORDS(grafo.getNodeByID(0),
+			grafo.getNodeByID(13), 1);
+
+	t = grafo.getPath(lastNode);
 
 	for (size_t i = 0; i < t.size(); i++) {
 		if (i < (t.size() - 1))
@@ -31,10 +34,29 @@ int main() {
 			cout << t.at(i);
 	}
 
+	cout << grafo.getDetailedPath(lastNode);
+
+	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(5),
+			grafo.getNodeByID(15));
+
+
+	t = grafo.getPath(lastNode);
+
+		for (size_t i = 0; i < t.size(); i++) {
+			if (i < (t.size() - 1))
+				cout << t.at(i) << "->";
+			else
+				cout << t.at(i);
+		}
+
+		cout << endl;
+
+		cout << grafo.getDetailedPath(lastNode);
+
 	// print stations TEST
 	for(auto it = stations.begin(); it != stations.end(); it++)
 		cout << *it << endl;
-
+	cout << endl;
 	/*
 
 	 //	string stop1 = "Estacao de Rio Tinto";	// ID = 0
