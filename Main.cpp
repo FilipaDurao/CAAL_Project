@@ -16,7 +16,7 @@ int main() {
 
 	Graph<string> grafo;
 
-	loadNodes(grafo);
+	vector<string> stations = loadNodes(grafo);
 	loadEdges(grafo);
 	vector<Node<string> *> nodes = grafo.getNodes();
 	Node<string>* lastNode = grafo.dijkstra_queue_TRANSBORDS(
@@ -30,6 +30,10 @@ int main() {
 		else
 			cout << t.at(i);
 	}
+
+	// print stations TEST
+	for(auto it = stations.begin(); it != stations.end(); it++)
+		cout << *it << endl;
 
 	/*
 

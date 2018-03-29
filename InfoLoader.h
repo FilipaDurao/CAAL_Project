@@ -1,11 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include "Graph.h"
 #include <string>
 
 using namespace std;
 
-void loadNodes(Graph<string> & grafo);
+vector<string> loadNodes(Graph<string> & grafo);
 
 void loadEdges(Graph<string> & grafo);

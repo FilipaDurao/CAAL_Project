@@ -1,9 +1,15 @@
 #include "InfoLoader.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 #include <cmath>
 
-void loadNodes(Graph<string> & grafo) {
+using namespace std;
+vector<string> loadNodes(Graph<string> & grafo) {
 
 	string line;
+	vector<string> stations;
 
 	ifstream file("nos.txt");
 
@@ -28,7 +34,12 @@ void loadNodes(Graph<string> & grafo) {
 		sLine >> garbage;
 		sLine >> y;
 
-//		cout << info << x << "|" << y << endl;
+		//cout << info << x << "|" << y << endl;
+
+		if(find(stations.begin(), stations.end(), info) == stations.end()) {
+			// station still doesn't exist, add it
+			stations.push_back(info);
+		}
 
 		grafo.addNode(info, x, y);
 
@@ -36,6 +47,7 @@ void loadNodes(Graph<string> & grafo) {
 
 	file.close();
 
+	return stations;
 }
 
 void loadEdges(Graph<string> & grafo) {
