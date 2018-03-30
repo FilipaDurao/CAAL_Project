@@ -12,52 +12,49 @@
 
 using namespace std;
 
-int main() {
+int main()
+{
 
 	Graph<string> grafo;
 
-	vector<string> stations = loadNodes(grafo);
+	loadNodes(grafo);
 	loadEdges(grafo);
 
-	Node<string> * lastNode;
+	Node<string> *lastNode;
 	vector<string> t;
 
 	lastNode = grafo.dijkstra_queue_TRANSBORDS(grafo.getNodeByID(0),
-			grafo.getNodeByID(13), 1);
+											   grafo.getNodeByID(13), 1);
 
 	t = grafo.getPath(lastNode);
 
-	for (size_t i = 0; i < t.size(); i++) {
+	for (size_t i = 0; i < t.size(); i++)
+	{
 		if (i < (t.size() - 1))
 			cout << t.at(i) << "->";
 		else
 			cout << t.at(i);
 	}
 
-	cout << endl << grafo.getDetailedPath(lastNode) << endl;
+	cout << endl
+		 << grafo.getDetailedPath(lastNode) << endl;
 
 	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(5),
-			grafo.getNodeByID(15));
-
+									grafo.getNodeByID(15));
 
 	t = grafo.getPath(lastNode);
 
-		for (size_t i = 0; i < t.size(); i++) {
-			if (i < (t.size() - 1))
-				cout << t.at(i) << "->";
-			else
-				cout << t.at(i);
-		}
+	for (size_t i = 0; i < t.size(); i++)
+	{
+		if (i < (t.size() - 1))
+			cout << t.at(i) << "->";
+		else
+			cout << t.at(i);
+	}
 
-		cout << endl;
+	cout << endl;
 
-		cout << grafo.getDetailedPath(lastNode);
-
-//	// print stations TEST
-//	for(auto it = stations.begin(); it != stations.end(); it++)
-//		cout << *it << endl;
-//	cout << endl;
-
+	cout << grafo.getDetailedPath(lastNode);
 
 	/*
 
@@ -126,5 +123,4 @@ int main() {
 	 }
 
 	 */
-
 }

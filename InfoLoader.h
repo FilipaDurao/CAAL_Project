@@ -8,7 +8,7 @@ using namespace std;
  *
  * @param grafo - the Graph into which the information will be loaded to
  */
-vector<string> loadNodes(Graph<string> & grafo);
+void loadNodes(Graph<string> & grafo);
 
 /**
  * @brief Loads all the Edge information from the file into the graph Nodes

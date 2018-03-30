@@ -6,10 +6,9 @@
 #include <cmath>
 
 using namespace std;
-vector<string> loadNodes(Graph<string> & grafo) {
+void loadNodes(Graph<string> & grafo) {
 
 	string line;
-	vector<string> stations;
 
 	ifstream file("nos.txt");
 
@@ -34,20 +33,11 @@ vector<string> loadNodes(Graph<string> & grafo) {
 		sLine >> garbage;
 		sLine >> y;
 
-		//cout << info << x << "|" << y << endl;
-
-		if(find(stations.begin(), stations.end(), info) == stations.end()) {
-			// station still doesn't exist, add it
-			stations.push_back(info);
-		}
-
 		grafo.addNode(info, x, y);
 
 	}
 
 	file.close();
-
-	return stations;
 }
 
 void loadEdges(Graph<string> & grafo) {
@@ -82,9 +72,6 @@ void loadEdges(Graph<string> & grafo) {
 		sLine >> garbage;
 		getline(sLine, type, ';');
 		getline(sLine, lineType, ';');
-
-//		cout << edge_id << "|" << id_init << "|" << id_end << "|" << type << "|"
-//				<< lineType << endl;
 
 		int x_i = grafo.getNodeByID(id_init)->getX();
 		int y_i = grafo.getNodeByID(id_init)->getY();
