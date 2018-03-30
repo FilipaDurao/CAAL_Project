@@ -12,49 +12,71 @@
 
 using namespace std;
 
-int main()
-{
+int main() {
 
 	Graph<string> grafo;
 
-	loadNodes(grafo);
-	loadEdges(grafo);
+	grafo.addNode("0", 0, 0);
 
-	Node<string> *lastNode;
-	vector<string> t;
+	grafo.addNode("1", 1, 0);
 
-	lastNode = grafo.dijkstra_queue_TRANSBORDS(grafo.getNodeByID(0),
-											   grafo.getNodeByID(13), 1);
+	grafo.addNode("2", 2, 0);
 
-	t = grafo.getPath(lastNode);
+	grafo.addNode("3", 1, 4);
 
-	for (size_t i = 0; i < t.size(); i++)
-	{
-		if (i < (t.size() - 1))
-			cout << t.at(i) << "->";
-		else
-			cout << t.at(i);
-	}
+	grafo.addSubwayEdge(0, 1, 1, "A");
+	grafo.addSubwayEdge(1, 2, 2, "B");
+	grafo.addSubwayEdge(0, 2, 6, "C");
 
-	cout << endl
-		 << grafo.getDetailedPath(lastNode) << endl;
+	Node<string> * lastNode;
 
-	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(5),
-									grafo.getNodeByID(15));
+	lastNode = grafo.dijkstra_queue_PRICE(grafo.getNodeByID(0),
+			grafo.getNodeByID(2));
 
-	t = grafo.getPath(lastNode);
+	cout << endl << grafo.getDetailedPath(lastNode, PRICE_MODE);
 
-	for (size_t i = 0; i < t.size(); i++)
-	{
-		if (i < (t.size() - 1))
-			cout << t.at(i) << "->";
-		else
-			cout << t.at(i);
-	}
+	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(0), grafo.getNodeByID(2));
 
-	cout << endl;
+	cout << endl << grafo.getDetailedPath(lastNode, TIME_MODE);
 
-	cout << grafo.getDetailedPath(lastNode);
+//	loadNodes(grafo);
+//	loadEdges(grafo);
+//
+//	Node<string> *lastNode;
+//	vector<string> t;
+//
+//	lastNode = grafo.dijkstra_queue_TRANSBORDS(grafo.getNodeByID(0),
+//											   grafo.getNodeByID(13), 1);
+//
+//	t = grafo.getPath(lastNode);
+//
+//	for (size_t i = 0; i < t.size(); i++)
+//	{
+//		if (i < (t.size() - 1))
+//			cout << t.at(i) << "->";
+//		else
+//			cout << t.at(i);
+//	}
+//
+//	cout << endl
+//		 << grafo.getDetailedPath(lastNode) << endl;
+//
+//	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(5),
+//									grafo.getNodeByID(15));
+//
+//	t = grafo.getPath(lastNode);
+//
+//	for (size_t i = 0; i < t.size(); i++)
+//	{
+//		if (i < (t.size() - 1))
+//			cout << t.at(i) << "->";
+//		else
+//			cout << t.at(i);
+//	}
+//
+//	cout << endl;
+//
+//	cout << grafo.getDetailedPath(lastNode);
 
 	/*
 

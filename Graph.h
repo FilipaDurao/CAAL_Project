@@ -26,6 +26,13 @@ const constexpr double BUS_MULTIPLIER = 2.5;
 const constexpr double SUBWAY_MULTIPLIER = 2.0;
 const constexpr double WALK_MULTIPLIER = 10.0;
 
+const constexpr double BUS_PRICE = 1.20;
+const constexpr double SUBWAY_PRICE = 1.70;
+const constexpr double WALK_PRICE = 0.0;
+
+const string TIME_MODE = "time";
+const string PRICE_MODE = "price";
+
 const string BUS = "bus";
 const string WALK = "walk";
 const string SUBWAY = "subway";
@@ -362,7 +369,25 @@ public:
 
 	string getEdgeConnection() const;
 
+	double getTimeWeight() const;
+
 };
+
+/**
+ * @brief Returns the ticket price of the trip represented by the edge
+ *
+ * @return the value of the ticket
+ */
+template<typename T>
+double Edge<T>::getTimeWeight() const {
+	if (this->type == BUS)
+		return BUS_PRICE;
+	else if (this->type == SUBWAY)
+		return SUBWAY_PRICE;
+	else
+		return WALK_PRICE;
+
+}
 
 /**
  * @brief Returns a string containing information about the edge
@@ -413,9 +438,9 @@ Node<T>* Edge<T>::getDestiny() const {
 }
 
 /**
- * @brief Returns the weight of an Edge
+ * @brief Returns the type of an Edge
  *
- * @return the weigth of the Edge
+ * @return the type of the Edge
  */
 template<typename T>
 string Edge<T>::getType() const {
@@ -466,7 +491,7 @@ public:
 
 	vector<T> getPath(Node<T> * dest) const;
 
-	string getDetailedPath(Node<T> * dest) const;
+	string getDetailedPath(Node<T> * dest, string MODE) const;
 
 	// ---- Dijkstra Algorithms ----
 	Node<T> * dijkstra_heap(Node<T> * startNode, Node<T> * endNode);
@@ -474,6 +499,7 @@ public:
 	Node<T> * dijkstra_queue_NO_WALK(Node<T> * startNode, Node<T> * endNode);
 	Node<T> * dijkstra_queue_TRANSBORDS(Node<T> * startNode, Node<T> * endNode,
 			int maxNum);
+	Node<T> * dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode);
 };
 
 /**
@@ -811,8 +837,7 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
  */
 template<class T>
 Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
-											  Node<T> * endNode,
-											  int maxNum) {
+		Node<T> * endNode, int maxNum) {
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 		(*it)->setDistance(DBL_MAX);
@@ -837,6 +862,9 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 	while (!q.empty()) {
 
 		v = q.extractMin();
+
+		if (v->getId() == endNode->getId())
+			break;
 
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
@@ -879,6 +907,71 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 }
 
 /**
+ * @brief Calculates the cheapest path the startNode to the endNode, using a mutable priority queue
+ *
+ *
+ * @param startNode - the beginning Node of the path
+ * @param endNode - the end Node of the path
+ *
+ * @return Node * - the final Node of the path, so we can walk it back to get the best path
+ */
+template<class T>
+Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode,
+		Node<T> * endNode) {
+
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
+		(*it)->setDistance(DBL_MAX);
+		(*it)->clearLastNode();
+		(*it)->setVisited(false);
+		(*it)->setNumTransbords(INT_MAX);
+		(*it)->setLastConnection("NOT");
+	}
+
+	startNode->setDistance(0);
+	startNode->setNumTransbords(-1);
+	startNode->setLastConnection("FIRST");
+
+	MutablePriorityQueue<Node<T> > q;
+	q.insert(startNode);
+
+	Node<T> * v;
+	Node<T> * w;
+	double old_distance;
+	double new_distance;
+
+	while (!q.empty()) {
+
+		v = q.extractMin();
+
+		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
+
+			w = it->getDestiny();
+			old_distance = w->getDistance();
+			new_distance = v->getDistance();
+
+			if (v->getLastConnection() != it->getEdgeConnection())
+				new_distance += it->getTimeWeight();
+
+			if (old_distance > new_distance) {
+
+				w->setDistance(new_distance);
+				w->setLastNode(v);
+				w->setLastConnection(it->getEdgeConnection());
+
+				if (!w->getVisited())
+					q.insert(w);
+				else
+					q.decreaseKey(w);
+
+				w->setVisited(true);
+			}
+		}
+	}
+
+	return endNode;
+}
+
+/**
  * @brief get the path to a certain Node
  *
  * @param dest - the destiny Node
@@ -903,12 +996,13 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
  * @brief Gives detailed Information about the path to take
  *
  * @param dest - the destiny Node
+ * @param MODE - a string with 2 possible values, TIME_MODE or PRICE_MODE, depending on which one it's called, it will give a different message
  *
  *
  * @return string containing the information
  */
 template<class T>
-string Graph<T>::getDetailedPath(Node<T> * dest) const {
+string Graph<T>::getDetailedPath(Node<T> * dest, string MODE) const {
 	string result = "";
 
 	queue<string> queue;
@@ -935,7 +1029,17 @@ string Graph<T>::getDetailedPath(Node<T> * dest) const {
 		queue.pop();
 	}
 
-	result += "Total Distance: " + to_string(round(total_distance*100)/100).substr(0, 5) + " meters";
+	string value = to_string(round(total_distance * 100) / 100).substr(0, 5);
+
+	if (MODE == TIME_MODE) {
+
+		result += "Total Time: " + value + " minutes.\n";
+
+	} else {
+
+		result += "Total Price: " + value + " euros.\n";
+
+	}
 
 	return result;
 }
