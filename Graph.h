@@ -21,9 +21,9 @@
 #include <queue>
 #include "MutablePriorityQueue.h"
 
-const constexpr double BUS_MULTIPLIER = 1.0;
-const constexpr double SUBWAY_MULTIPLIER = 0.7;
-const constexpr double WALK_MULTIPLIER = 2.7;
+const constexpr double BUS_MULTIPLIER = 2.5;
+const constexpr double SUBWAY_MULTIPLIER = 2.0;
+const constexpr double WALK_MULTIPLIER = 10.0;
 
 const string BUS = "bus";
 const string WALK = "walk";
