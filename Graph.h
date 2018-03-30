@@ -19,6 +19,7 @@
 #include <climits>
 #include <string>
 #include <queue>
+#include <cmath>
 #include "MutablePriorityQueue.h"
 
 const constexpr double BUS_MULTIPLIER = 2.5;
