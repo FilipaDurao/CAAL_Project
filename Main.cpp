@@ -109,8 +109,8 @@ int main() {
 	 grafo.addBusEdge(0, 2, 4, line204);
 	 grafo.addBusEdge(2, 3, 4, line301);
 	 grafo.addBusEdge(0, 3, 10, line301);
-	 grafo.addMetroEdge(0, 1, 1, lineA);
-	 grafo.addMetroEdge(1, 3, 1, lineD);
+	 grafo.addSubwayEdge(0, 1, 1, lineA);
+	 grafo.addSubwayEdge(1, 3, 1, lineD);
 
 	 vector<Node<string> *> nodes = grafo.getNodes();
 	 Node<string>* lastNode = grafo.dijkstra_queue_TRANSBORDS(

@@ -22,12 +22,12 @@
 #include "MutablePriorityQueue.h"
 
 const constexpr double BUS_MULTIPLIER = 1.0;
-const constexpr double METRO_MULTIPLIER = 0.7;
+const constexpr double SUBWAY_MULTIPLIER = 0.7;
 const constexpr double WALK_MULTIPLIER = 2.7;
 
 const string BUS = "bus";
 const string WALK = "walk";
-const string METRO = "metro";
+const string SUBWAY = "subway";
 
 using namespace std;
 
@@ -366,7 +366,7 @@ public:
 /**
  * @brief Returns a string containing information about the edge
  *
- * The information about a edge is its type, i.e. bus, metro or walk, and the line associated with it, e.g line 204.
+ * The information about a edge is its type, i.e. bus, subway or walk, and the line associated with it, e.g line 204.
  *
  * @return string containing the information
  *
@@ -428,8 +428,8 @@ string Edge<T>::getType() const {
  */
 template<typename T>
 double Edge<T>::getWeight() const {
-	if (this->type == METRO)
-		return this->weight * METRO_MULTIPLIER;
+	if (this->type == SUBWAY)
+		return this->weight * SUBWAY_MULTIPLIER;
 	else if (this->type == BUS)
 		return this->weight * BUS_MULTIPLIER;
 	else
@@ -458,7 +458,7 @@ public:
 	// ---- Edges Types ----
 	void addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
 			double weight, string lineID);
-	void addMetroEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
+	void addSubwayEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
 			double weight, string lineID);
 	void addWalkEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
 			double weight, string lineID);
@@ -566,16 +566,16 @@ void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
 }
 
 /**
- * @brief Creates an MetroEdge and adds it to a certain existing Node
+ * @brief Creates an SubwayEdge and adds it to a certain existing Node
  *
  * @param sourceNodeID - the ID of the source Node of the Edge
  * @param destinyNodeID - the ID of the destiny Node of the Edge
  * @param weight - the weight of the Edge
  */
 template<typename T>
-void Graph<T>::addMetroEdge(unsigned int sourceNodeID,
+void Graph<T>::addSubwayEdge(unsigned int sourceNodeID,
 		unsigned int destinyNodeID, double weight, string lineID) {
-	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, METRO, lineID);
+	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, SUBWAY, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
 
 }

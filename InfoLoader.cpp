@@ -96,8 +96,8 @@ void loadEdges(Graph<string> & grafo) {
 
 		if(type == BUS)
 			grafo.addBusEdge(id_init,id_end,weight,lineType);
-		else if(type == METRO)
-			grafo.addMetroEdge(id_init, id_end,weight,lineType);
+		else if(type == SUBWAY)
+			grafo.addSubwayEdge(id_init, id_end,weight,lineType);
 		else
 			grafo.addWalkEdge(id_init, id_end, weight, lineType);
 	}
