@@ -57,6 +57,8 @@ int main() {
 	for(auto it = stations.begin(); it != stations.end(); it++)
 		cout << *it << endl;
 	cout << endl;
+
+
 	/*
 
 	 //	string stop1 = "Estacao de Rio Tinto";	// ID = 0

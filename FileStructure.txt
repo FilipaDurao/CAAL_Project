@@ -1,0 +1,12 @@
+nos.txt
+
+Nome do local/estação;posição x;posição y
+
+
+
+arestas.txt
+
+Número da aresta;ID do nó de início;ID do nó final;Tipo de meio de transporte percorrido nessa aresta;Linha*
+
+*Dependendo dos diversos transportes, pode haver várias linhas, por exemplo as diversas linhas de autocarros ou metro.
+No caso de nessa aresta o percurso ser a pé, a linha é sempre a mesma, "walk"
