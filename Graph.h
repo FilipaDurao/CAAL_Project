@@ -810,7 +810,8 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
  */
 template<class T>
 Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
-		Node<T> * endNode, int maxNum) {
+											  Node<T> * endNode,
+											  int maxNum) {
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 		(*it)->setDistance(DBL_MAX);
@@ -921,17 +922,11 @@ string Graph<T>::getDetailedPath(Node<T> * dest) const {
 	}
 
 	while (dest->getLastNode() != NULL) {
-
 		string one_stop = "At ";
-
 		one_stop += dest->getLastNode()->getInfo() + " catch the ";
-
 		one_stop += dest->getLastConnection() + " to " + dest->getInfo() + "\n";
-
 		queue.push(one_stop);
-
 		dest = dest->getLastNode();
-
 	}
 
 	while (!queue.empty()) {
@@ -939,7 +934,7 @@ string Graph<T>::getDetailedPath(Node<T> * dest) const {
 		queue.pop();
 	}
 
-	result += "Total Distance: " + to_string(total_distance);
+	result += "Total Distance: " + to_string(round(total_distance*100)/100).substr(0, 5) + " meters";
 
 	return result;
 }

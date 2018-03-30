@@ -34,7 +34,7 @@ int main() {
 			cout << t.at(i);
 	}
 
-	cout << grafo.getDetailedPath(lastNode);
+	cout << endl << grafo.getDetailedPath(lastNode) << endl;
 
 	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(5),
 			grafo.getNodeByID(15));
@@ -53,10 +53,10 @@ int main() {
 
 		cout << grafo.getDetailedPath(lastNode);
 
-	// print stations TEST
-	for(auto it = stations.begin(); it != stations.end(); it++)
-		cout << *it << endl;
-	cout << endl;
+//	// print stations TEST
+//	for(auto it = stations.begin(); it != stations.end(); it++)
+//		cout << *it << endl;
+//	cout << endl;
 
 
 	/*
