@@ -9,6 +9,7 @@
 #include "Graph.h"
 #include "Test.h"
 #include "InfoLoader.h"
+#include "menu.h"
 
 using namespace std;
 
@@ -55,6 +56,10 @@ int main()
 	cout << endl;
 
 	cout << grafo.getDetailedPath(lastNode);
+
+	// TESTE
+	// list all stations
+	menuListStation(grafo);
 
 	/*
 
