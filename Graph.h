@@ -22,9 +22,9 @@
 #include <cmath>
 #include "MutablePriorityQueue.h"
 
-const constexpr double BUS_MULTIPLIER = 2.5;
-const constexpr double SUBWAY_MULTIPLIER = 2.0;
-const constexpr double WALK_MULTIPLIER = 10.0;
+const constexpr double BUS_MULTIPLIER = 0.025;
+const constexpr double SUBWAY_MULTIPLIER = 0.02;
+const constexpr double WALK_MULTIPLIER = 0.1;
 
 const constexpr double BUS_PRICE = 1.20;
 const constexpr double SUBWAY_PRICE = 1.70;
