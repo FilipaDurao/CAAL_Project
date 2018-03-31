@@ -74,7 +74,6 @@ public:
 
 	void addEdge(Edge<T> edge);
 	unsigned int getId() const;
-	T getValue() const;
 	unsigned int getNumberOfEdges() const;
 	const vector<Edge<T>> & getEdges() const;
 	T getInfo() const;
@@ -169,9 +168,8 @@ void Node<T>::setNumTransbords(int i) {
  * @brief Creates a node
  * The node's ID will be its place in the node's vector in graph, for easier access
  *
- * @param value - the node's value
+ * @param info - the node's value
  * @param ID - the node's ID
- *
  */
 template<typename T>
 Node<T>::Node(const T &info, unsigned int ID) {
@@ -189,7 +187,7 @@ Node<T>::Node(const T &info, unsigned int ID) {
  * @brief Creates a node
  * The node's ID will be its place in the node's vector in graph, for easier access
  *
- * @param value - the node's value
+ * @param info - the node's value
  * @param ID - the node's ID
  * @param x - the node's x position
  * @param y - the node's y position
@@ -358,17 +356,11 @@ protected:
 public:
 
 	Edge(Node<T> * destiny, double weight, string type, string lineID);
-
 	virtual ~Edge();
-
 	Node<T>* getDestiny() const;
-
 	double getWeight() const;
-
 	string getType() const;
-
 	string getEdgeConnection() const;
-
 	double getTimeWeight() const;
 
 };
@@ -410,7 +402,7 @@ string Edge<T>::getEdgeConnection() const {
  * @param destiny - the node of destiny of the Edge
  * @param weight - the weight of the Edge
  * @param type - the type of Edge
- *
+ * @param lineID - the ID of the line of the Edge
  */
 template<typename T>
 Edge<T>::Edge(Node<T> * destiny, double weight, string type, string lineID) {
@@ -536,6 +528,8 @@ Graph<T>::~Graph() {
  * @brief Creates a Node and adds it to the Graph
  *
  * @param nodeData - the data with which we create a Node
+ * @param x - the x position of the Node
+ * @param y - the y position of the Node
  */
 template<typename T>
 void Graph<T>::addNode(T nodeData, int x, int y) {
@@ -583,6 +577,7 @@ vector<Node<T> *> Graph<T>::getNodes() const {
  * @param sourceNodeID - the ID of the source Node of the Edge
  * @param destinyNodeID - the ID of the destiny Node of the Edge
  * @param weight - the weight of the Edge
+ * @param lineID - the ID of the bus line
  */
 template<typename T>
 void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
@@ -598,6 +593,7 @@ void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
  * @param sourceNodeID - the ID of the source Node of the Edge
  * @param destinyNodeID - the ID of the destiny Node of the Edge
  * @param weight - the weight of the Edge
+ * @param lineID - the ID of the subway line
  */
 template<typename T>
 void Graph<T>::addSubwayEdge(unsigned int sourceNodeID,
@@ -613,6 +609,7 @@ void Graph<T>::addSubwayEdge(unsigned int sourceNodeID,
  * @param sourceNodeID - the ID of the source Node of the Edge
  * @param destinyNodeID - the ID of the destiny Node of the Edge
  * @param weight - the weight of the Edge
+ * @param lineID - to maintain equality among the other types of edges. In this case, it's always "walk"
  */
 template<typename T>
 void Graph<T>::addWalkEdge(unsigned int sourceNodeID,
@@ -1041,13 +1038,10 @@ string Graph<T>::getDetailedPath(Node<T> * dest, string MODE) const {
 	string value = to_string(round(total_distance * 100) / 100).substr(0, 5);
 
 	if (MODE == TIME_MODE) {
-
 		result += "Total Time: " + value + " minutes.\n";
 
 	} else {
-
 		result += "Total Price: " + value + " euros.\n";
-
 	}
 
 	return result;
