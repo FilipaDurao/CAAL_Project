@@ -45,8 +45,8 @@ int main() {
 	Node<string> *lastNode;
 	vector<string> t;
 
-	lastNode = grafo.dijkstra_queue_TRANSBORDS(grafo.getNodeByID(27),
-											   grafo.getNodeByID(29), 0);
+	lastNode = grafo.dijkstra_queue_TRANSBORDS(grafo.getNodeByID(4),
+											   grafo.getNodeByID(6), 5);
 
 	t = grafo.getPath(lastNode);
 
@@ -61,8 +61,8 @@ int main() {
 	cout << endl
 		 << grafo.getDetailedPath(lastNode, TIME_MODE) << endl;
 
-	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(27),
-									grafo.getNodeByID(29));
+	lastNode = grafo.dijkstra_queue(grafo.getNodeByID(4),
+									grafo.getNodeByID(6));
 
 	t = grafo.getPath(lastNode);
 
