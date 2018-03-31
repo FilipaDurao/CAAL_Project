@@ -1,16 +1,37 @@
-Sao Bento;100;100
-Trindade;200;100
-Faria Guimaraes;300;100
-Marques;400;100
-Combatentes;100;200
-Salgueiros;200;200
-Polo Universitario;300;200
-IPO;400;200
-Hospital Sao Joao;100;300
-Bolhao;200;300
-Campo 24 de Agosto;300;300
-Heroismo;400;300
-Estadio do Dragao;100;400
-Lapa;200;400
-Casa da Musica;300;400
-Carolina Michaelis;400;400
+Francos;180;1440
+Carvalhido;540;1620
+Casa da Musica;540;1260
+Carolina Michaelis;900;1260
+Silva Porto;1080;1620
+Lapa;1080;1080
+Jardim de Arca de Água;1440;1980
+Largo do Campo Lindo;1620;1800
+Faria Guimaraes;1620;1260
+Trindade;1620;900
+Aliados;1620;720
+Sao Bento;1620;360
+Instituto de Biotecnologia;1800;2160
+Igreja de Paranhos;1800;1980
+IPO;1980;2340
+Polo Universitario;1980;1980
+Covelo;1980;1620
+Marques;1980;1440
+Hospital de Sao Joao;2160;2520
+Bolhao;2160;720
+Asprela;2340;2520
+Faculdade de Engenharia;2520;2340
+Faculdade de Economia;2340;2160
+Salgueiros;2340;1800
+Combatentes;2340;1620
+Padrao;2340;540
+Campo 24 de Agosto;2520;720
+Areosa;2880;2340
+Heroismo;2880;540
+Rebordaos;3060;1980
+Dolce Vita;3060;1260
+Nasoni;3240;1440
+Estadio do Dragao;3240;1260
+Campanha;3240;1080
+Rio Tinto;3420;1800
+Levada;3420;1620
+Campainha;3780;1800
