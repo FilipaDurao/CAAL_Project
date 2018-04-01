@@ -6,6 +6,7 @@
 #include <cmath>
 
 using namespace std;
+
 void loadNodes(Graph<string> & grafo) {
 
 	string line;

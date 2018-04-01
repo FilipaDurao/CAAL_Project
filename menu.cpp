@@ -5,7 +5,7 @@
 void menu(Graph<string> &g) {
 	// display the stations
 	menuListStation(g);
-
+	cout << endl;
 	// ask for departure station
 	unsigned int id_origin, id_dest;
 
@@ -21,13 +21,29 @@ void menu(Graph<string> &g) {
 		*endNode = g.getNodeByID(id_dest);
 
 	// ask for criterion
+	cout << endl;
 	pathCriterion criterion = getPathCriterion();
 
 	// run Dijkstra based on criterion
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
 
-	// show the path
-	//g.showpa
+	if (criterion == DISTANCE) {
+		cout << g.getDetailedPath(lastNode, TIME_MODE) << endl;
+	}
+	else {
+		// TODO
+		cout << g.getDetailedPath(lastNode, PRICE_MODE) << endl;
+	}
+
+	vector<string> t = g.getPath(lastNode);
+
+	for (size_t i = 0; i < t.size(); i++)
+	{
+		if (i < (t.size() - 1))
+			cout << t.at(i) << "->";
+		else
+			cout << t.at(i);
+	}
 }
 
 static void menuListStation(const Graph<string> &g) {
@@ -42,9 +58,10 @@ static pathCriterion getPathCriterion() {
 	cout << "[0] - Numero de transbordos\n";
 	cout << "[1] - Rotas sem caminhos a pé\n";
 	cout << "[2] - Menor preço\n";
-	cout << "[3] - Menor tempo de viagem\n";
+	cout << "[3] - Menor tempo de viagem\n\n";
 
 	// TODO validate input
+	cout << "Criterio ? ";
 	unsigned int option;
 	cin >> option;
 

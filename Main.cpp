@@ -9,6 +9,7 @@
 #include "Graph.h"
 #include "Test.h"
 #include "InfoLoader.h"
+#include "menu.h"
 
 using namespace std;
 
@@ -42,6 +43,8 @@ int main() {
 	loadNodes(grafo);
 	loadEdges(grafo);
 
+	menu(grafo);
+	/*
 	Node<string> *lastNode;
 	vector<string> t;
 
@@ -77,6 +80,8 @@ int main() {
 	cout << endl;
 
 	cout << grafo.getDetailedPath(lastNode, PRICE_MODE);
+	*/
+
 
 	/*
 
