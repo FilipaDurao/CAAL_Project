@@ -1013,17 +1013,32 @@ string Graph<T>::getDetailedPath(Node<T> * dest, string MODE) const {
 		return oops;
 	}
 
+	string one_stop;
+	string lastConnection = "";
+
 	while (dest->getLastNode() != NULL) {
-		string one_stop = "At ";
+		one_stop = "At ";
+
+//		if(dest->getLastConnection() == lastConnection){
+//
+//			if(!(dest->getLastConnection() == "walk walk")){
+//				one_stop += dest->getLastNode()->getInfo() + " continue on the ";
+//				one_stop += dest->getLastConnection() + " to " + dest->getInfo() + "\n";
+//				lastConnection = dest->getLastConnection();
+//			}
+//
+//		}
 
 		if(dest->getLastConnection() == "walk walk"){
 			one_stop += dest->getLastNode()->getInfo() + " ";
 			one_stop += dest->getLastConnection().substr(0, 4) + " to " + dest->getInfo() + "\n";
+			lastConnection = dest->getLastConnection();
 		}
 
 		else{
 			one_stop += dest->getLastNode()->getInfo() + " catch the ";
 			one_stop += dest->getLastConnection() + " to " + dest->getInfo() + "\n";
+			lastConnection = dest->getLastConnection();
 		}
 
 		queue.push(one_stop);
