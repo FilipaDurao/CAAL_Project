@@ -66,6 +66,9 @@ private:
 	int numTransbords;
 	string lastConnection = "";
 
+	// ---- Needed for Dijsktra with Price -----
+	double price;
+
 public:
 	Node(const T &value, unsigned int ID);
 	Node(const T &value, unsigned int ID, int x, int y);
@@ -97,9 +100,18 @@ public:
 
 	// ---- Mutable Priority Queue Info ----
 	bool operator<(Node<T> & node) const;
+	double getPrice() const;
+	void setPrice(double price);
+
 	int queueIndex = 0;
 
+	static bool sortByDistance;
+
 };
+
+template<typename T>
+bool Node<T>::sortByDistance = true;
+
 /**
  * @brief Returns the node's x position
  *
@@ -330,6 +342,16 @@ bool Node<T>::getVisited() const {
 	return this->visited;
 }
 
+template<typename T>
+inline double Node<T>::getPrice() const {
+	return price;
+}
+
+template<typename T>
+inline void Node<T>::setPrice(double price) {
+	this->price = price;
+}
+
 /**
  * @brief Operator < to be able to compare different Nodes
  *
@@ -339,7 +361,11 @@ bool Node<T>::getVisited() const {
  */
 template<typename T>
 bool Node<T>::operator<(Node<T> & node) const {
-	return this->distance < node.distance;
+
+	if (Node<T>::sortByDistance)
+		return this->distance < node.distance;
+	else
+		return this->price < node.price;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -361,7 +387,7 @@ public:
 	double getWeight() const;
 	string getType() const;
 	string getEdgeConnection() const;
-	double getTimeWeight() const;
+	double getPriceWeight() const;
 
 };
 
@@ -371,7 +397,7 @@ public:
  * @return the value of the ticket
  */
 template<typename T>
-double Edge<T>::getTimeWeight() const {
+double Edge<T>::getPriceWeight() const {
 	if (this->type == BUS)
 		return BUS_PRICE;
 	else if (this->type == SUBWAY)
@@ -483,7 +509,7 @@ public:
 
 	vector<T> getPath(Node<T> * dest) const;
 
-	string getDetailedPath(Node<T> * dest, string MODE) const;
+	string getDetailedPath(Node<T> * dest) const;
 
 	// ---- Dijkstra Algorithms ----
 	Node<T> * dijkstra_heap(Node<T> * startNode, Node<T> * endNode);
@@ -491,7 +517,8 @@ public:
 	Node<T> * dijkstra_queue_NO_WALK(Node<T> * startNode, Node<T> * endNode);
 	Node<T> * dijkstra_queue_TRANSBORDS(Node<T> * startNode, Node<T> * endNode,
 			int maxNum);
-	Node<T> * dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode);
+	Node<T> * dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
+			double walk_distance);
 };
 
 /**
@@ -706,11 +733,15 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 template<class T>
 Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
+	//initial setup to compare by distance
+	Node<T>::sortByDistance = true;
+
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 		(*it)->setDistance(DBL_MAX);
 		(*it)->clearLastNode();
 		(*it)->setVisited(false);
 		(*it)->setLastConnection("NOT");
+		(*it)->setPrice(0);
 	}
 
 	startNode->setDistance(0);
@@ -738,6 +769,15 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
 			if (old_distance > new_distance) {
 
+				/*updating the prices
+				 * not important for the queue since it's taking distance as the operator
+				 */
+				if (v->getLastConnection() != it->getEdgeConnection())
+					w->setPrice(v->getPrice() + it->getPriceWeight());
+
+				else
+					w->setPrice(v->getPrice());
+
 				w->setDistance(new_distance);
 				w->setLastNode(v);
 				w->setLastConnection(it->getEdgeConnection());
@@ -747,6 +787,7 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 					q.decreaseKey(w);
 
 				w->setVisited(true);
+
 			}
 		}
 	}
@@ -767,11 +808,15 @@ template<class T>
 Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 		Node<T> * endNode) {
 
+	//initial setup to compare by distance
+	Node<T>::sortByDistance = true;
+
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 		(*it)->setDistance(DBL_MAX);
 		(*it)->clearLastNode();
 		(*it)->setVisited(false);
 		(*it)->setLastConnection("NOT");
+		(*it)->setPrice(0);
 	}
 
 	startNode->setDistance(0);
@@ -793,14 +838,23 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
-			if (it->getType() == WALK)
-				continue;
-
 			w = it->getDestiny();
 			old_distance = w->getDistance();
 			new_distance = v->getDistance() + it->getWeight();
 
+			if (it->getType() == WALK)
+				continue;
+
 			if (old_distance > new_distance) {
+
+				/*updating the prices
+				 * not important for the queue since it's taking distance as the operator
+				 */
+				if (v->getLastConnection() != it->getEdgeConnection())
+					w->setPrice(v->getPrice() + it->getPriceWeight());
+
+				else
+					w->setPrice(v->getPrice());
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
@@ -836,12 +890,16 @@ template<class T>
 Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 		Node<T> * endNode, int maxNum) {
 
+	//initial setup to compare by distance
+	Node<T>::sortByDistance = true;
+
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 		(*it)->setDistance(DBL_MAX);
 		(*it)->clearLastNode();
 		(*it)->setVisited(false);
 		(*it)->setNumTransbords(INT_MAX);
 		(*it)->setLastConnection("NOT");
+		(*it)->setPrice(0);
 	}
 
 	startNode->setDistance(0);
@@ -865,6 +923,10 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
+			w = it->getDestiny();
+			old_distance = w->getDistance();
+			new_distance = v->getDistance() + it->getWeight();
+
 			int currentTransbords = v->getNumTransbords();
 
 			/*if the method of transport used or the line has changed
@@ -879,11 +941,16 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 				continue;
 			}
 
-			w = it->getDestiny();
-			old_distance = w->getDistance();
-			new_distance = v->getDistance() + it->getWeight();
-
 			if (old_distance > new_distance) {
+
+				/*updating the prices
+				 * not important for the queue since it's taking distance as the operator
+				 */
+				if (v->getLastConnection() != it->getEdgeConnection())
+					w->setPrice(v->getPrice() + it->getPriceWeight());
+
+				else
+					w->setPrice(v->getPrice());
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
@@ -913,18 +980,22 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
  * @return Node * - the final Node of the path, so we can walk it back to get the best path
  */
 template<class T>
-Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode,
-		Node<T> * endNode) {
+Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
+		double walk_distance) {
+
+	//initial setup to compare by distance
+	Node<T>::sortByDistance = false;
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
-		(*it)->setDistance(DBL_MAX);
+		(*it)->setDistance(0);
 		(*it)->clearLastNode();
 		(*it)->setVisited(false);
 		(*it)->setNumTransbords(INT_MAX);
 		(*it)->setLastConnection("NOT");
+		(*it)->setPrice(DBL_MAX);
 	}
 
-	startNode->setDistance(0);
+	startNode->setPrice(0);
 	startNode->setNumTransbords(-1);
 	startNode->setLastConnection("FIRST");
 
@@ -933,8 +1004,8 @@ Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode,
 
 	Node<T> * v;
 	Node<T> * w;
-	double old_distance;
-	double new_distance;
+	double old_price;
+	double new_price;
 
 	while (!q.empty()) {
 
@@ -943,15 +1014,20 @@ Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode,
 		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
 
 			w = it->getDestiny();
-			old_distance = w->getDistance();
-			new_distance = v->getDistance();
+			old_price = w->getPrice();
+			new_price = v->getPrice();
 
 			if (v->getLastConnection() != it->getEdgeConnection())
-				new_distance += it->getTimeWeight();
+				new_price += it->getPriceWeight();
 
-			if (old_distance > new_distance) {
+			/*updating the distance
+			 * not important for the queue since its taking the price as the operator
+			 */
+			w->setDistance(v->getDistance() + it->getWeight());
 
-				w->setDistance(new_distance);
+			if (old_price > new_price) {
+
+				w->setPrice(new_price);
 				w->setLastNode(v);
 				w->setLastConnection(it->getEdgeConnection());
 
@@ -993,18 +1069,19 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
  * @brief Gives detailed Information about the path to take
  *
  * @param dest - the destiny Node
- * @param MODE - a string with 2 possible values, TIME_MODE or PRICE_MODE, depending on which one it's called, it will give a different message
  *
  *
  * @return string containing the information
  */
 template<class T>
-string Graph<T>::getDetailedPath(Node<T> * dest, string MODE) const {
+string Graph<T>::getDetailedPath(Node<T> * dest) const {
 	string result = "";
 
 	queue<string> queue;
 
 	double total_distance = dest->getDistance();
+
+	double total_price = dest->getPrice();
 
 	if (dest->getLastNode() == NULL) {
 		string oops = "It is impossible to travel to ";
@@ -1014,31 +1091,20 @@ string Graph<T>::getDetailedPath(Node<T> * dest, string MODE) const {
 	}
 
 	string one_stop;
-	string lastConnection = "";
 
 	while (dest->getLastNode() != NULL) {
 		one_stop = "At ";
 
-//		if(dest->getLastConnection() == lastConnection){
-//
-//			if(!(dest->getLastConnection() == "walk walk")){
-//				one_stop += dest->getLastNode()->getInfo() + " continue on the ";
-//				one_stop += dest->getLastConnection() + " to " + dest->getInfo() + "\n";
-//				lastConnection = dest->getLastConnection();
-//			}
-//
-//		}
-
-		if(dest->getLastConnection() == "walk walk"){
+		if (dest->getLastConnection() == "walk walk") {
 			one_stop += dest->getLastNode()->getInfo() + " ";
-			one_stop += dest->getLastConnection().substr(0, 4) + " to " + dest->getInfo() + "\n";
-			lastConnection = dest->getLastConnection();
+			one_stop += dest->getLastConnection().substr(0, 4) + " to "
+					+ dest->getInfo() + "\n";
 		}
 
-		else{
+		else {
 			one_stop += dest->getLastNode()->getInfo() + " catch the ";
-			one_stop += dest->getLastConnection() + " to " + dest->getInfo() + "\n";
-			lastConnection = dest->getLastConnection();
+			one_stop += dest->getLastConnection() + " to " + dest->getInfo()
+					+ "\n";
 		}
 
 		queue.push(one_stop);
@@ -1050,14 +1116,12 @@ string Graph<T>::getDetailedPath(Node<T> * dest, string MODE) const {
 		queue.pop();
 	}
 
-	string value = to_string(round(total_distance * 100) / 100).substr(0, 5);
+	string time = to_string(round(total_distance * 100) / 100).substr(0, 5);
+	string price = to_string(round(total_price * 100) / 100).substr(0, 5);
 
-	if (MODE == TIME_MODE) {
-		result += "Total Time: " + value + " minutes.\n";
+	result += "Total Time: " + time + " minutes.\n";
 
-	} else {
-		result += "Total Price: " + value + " euros.\n";
-	}
+	result += "Total Price: " + price + " euros.\n";
 
 	return result;
 }

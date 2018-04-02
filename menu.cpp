@@ -1,7 +1,6 @@
 #include "menu.h"
 #include <vector>
 
-
 void menu(Graph<string> &g) {
 	// display the stations
 	menuListStation(g);
@@ -17,8 +16,8 @@ void menu(Graph<string> &g) {
 	// TODO, validate
 
 	// Get node pointers
-	Node<string> *startNode = g.getNodeByID(id_origin), 
-		*endNode = g.getNodeByID(id_dest);
+	Node<string> *startNode = g.getNodeByID(id_origin), *endNode =
+			g.getNodeByID(id_dest);
 
 	// ask for criterion
 	cout << endl;
@@ -27,18 +26,19 @@ void menu(Graph<string> &g) {
 	// run Dijkstra based on criterion
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
 
-	if (criterion == DISTANCE) {
-		cout << g.getDetailedPath(lastNode, TIME_MODE) << endl;
-	}
-	else {
-		// TODO
-		cout << g.getDetailedPath(lastNode, PRICE_MODE) << endl;
-	}
+//	if (criterion == DISTANCE) {
+//		cout << g.getDetailedPath(lastNode, TIME_MODE) << endl;
+//	}
+//	else {
+//		// TODO
+//		cout << g.getDetailedPath(lastNode, PRICE_MODE) << endl;
+//	}
+
+	cout << g.getDetailedPath(lastNode) << endl;
 
 	vector<string> t = g.getPath(lastNode);
 
-	for (size_t i = 0; i < t.size(); i++)
-	{
+	for (size_t i = 0; i < t.size(); i++) {
 		if (i < (t.size() - 1))
 			cout << t.at(i) << "->";
 		else
@@ -56,8 +56,8 @@ static void menuListStation(const Graph<string> &g) {
 static pathCriterion getPathCriterion() {
 	cout << "Escolha um criterio\n";
 	cout << "[0] - Numero de transbordos\n";
-	cout << "[1] - Rotas sem caminhos a pé\n";
-	cout << "[2] - Menor preço\n";
+	cout << "[1] - Rotas sem caminhos a pï¿½\n";
+	cout << "[2] - Menor preï¿½o\n";
 	cout << "[3] - Menor tempo de viagem\n\n";
 
 	// TODO validate input
@@ -65,16 +65,16 @@ static pathCriterion getPathCriterion() {
 	unsigned int option;
 	cin >> option;
 
-	return (pathCriterion)option;
+	return (pathCriterion) option;
 }
 
-static Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode, Node<string> *endNode, pathCriterion criterion) {
-	
-	switch (criterion)
-	{
+static Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode,
+		Node<string> *endNode, pathCriterion criterion) {
+
+	switch (criterion) {
 	case TRANSBORDS:
 		int n;
-		cout << "Numero máximo de transbordos ? ";
+		cout << "Numero mï¿½ximo de transbordos ? ";
 		cin >> n; // TODO validate input
 		return g.dijkstra_queue_TRANSBORDS(startNode, endNode, n);
 
@@ -82,7 +82,10 @@ static Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode, No
 		return g.dijkstra_queue_NO_WALK(startNode, endNode);
 
 	case PRICE:
-		return g.dijkstra_queue_PRICE(startNode, endNode);
+		double walk_distance;
+		cout << "Distancia maxima que pretende andar a pe? ";
+		cin >> walk_distance;
+		return g.dijkstra_queue_PRICE(startNode, endNode, walk_distance);
 
 	case DISTANCE:
 		return g.dijkstra_queue(startNode, endNode);
