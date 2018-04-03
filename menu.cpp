@@ -56,8 +56,8 @@ static void menuListStation(const Graph<string> &g) {
 static pathCriterion getPathCriterion() {
 	cout << "Escolha um criterio\n";
 	cout << "[0] - Numero de transbordos\n";
-	cout << "[1] - Rotas sem caminhos a p�\n";
-	cout << "[2] - Menor pre�o\n";
+	cout << "[1] - Rotas sem caminhos a pe\n";
+	cout << "[2] - Menor preco\n";
 	cout << "[3] - Menor tempo de viagem\n\n";
 
 	// TODO validate input
@@ -74,7 +74,7 @@ static Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 	switch (criterion) {
 	case TRANSBORDS:
 		int n;
-		cout << "Numero m�ximo de transbordos ? ";
+		cout << "Numero maximo de transbordos ? ";
 		cin >> n; // TODO validate input
 		return g.dijkstra_queue_TRANSBORDS(startNode, endNode, n);
 
