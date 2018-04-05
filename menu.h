@@ -13,11 +13,15 @@ enum pathCriterion
 };
 
 void menu(Graph<string>& g);
-
 static void menuListStation(const Graph<string> &g);
+static void makeChoice(Graph<string> &g);
+static int wantToExit();
 
+static void presentPath(vector<string> t);
 static pathCriterion getPathCriterion();
 
 static Node<string>* run_Dijkstra(Graph<string>& g, Node<string>* startNode, Node<string>* endNode, pathCriterion criterion);
+
+bool isNumber(string input);
 
 #endif
