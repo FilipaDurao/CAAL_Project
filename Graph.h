@@ -519,6 +519,9 @@ public:
 			int maxNum);
 	Node<T> * dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
 			double walk_distance);
+
+	// Print in the screen
+	void presentPath(vector<Node<T>> invertedPath);
 };
 
 /**
@@ -1073,8 +1076,16 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
  *
  * @return string containing the information
  */
+
+/*
+ * TODO create a new function that receives a vector with the inverted path and actually print the path
+ * with an improved interface
+ *
+ * This one will only insert the nodes into a vector in order
+ */
 template<class T>
 string Graph<T>::getDetailedPath(Node<T> * dest) const {
+
 	string result = "";
 
 	queue<string> queue;
@@ -1122,6 +1133,11 @@ string Graph<T>::getDetailedPath(Node<T> * dest) const {
 	result += "Total Price: " + price + " euros.\n";
 
 	return result;
+}
+
+template<class T>
+void Graph<T>::presentPath(vector<Node<T>> invertedPath){
+	//TODO
 }
 
 #endif /* GRAPH_H_ */
