@@ -22,9 +22,9 @@
 #include <cmath>
 #include "MutablePriorityQueue.h"
 
-const constexpr double BUS_MULTIPLIER = 0.025;
-const constexpr double SUBWAY_MULTIPLIER = 0.02;
-const constexpr double WALK_MULTIPLIER = 0.1;
+const constexpr double BUS_TIME_MULTIPLIER = 0.025;
+const constexpr double SUBWAY_TIME_MULTIPLIER = 0.02;
+const constexpr double WALK_TIME_MULTIPLIER = 0.02;
 
 const constexpr double BUS_PRICE = 1.20;
 const constexpr double SUBWAY_PRICE = 1.70;
@@ -473,11 +473,11 @@ string Edge<T>::getType() const {
 template<typename T>
 double Edge<T>::getWeight() const {
 	if (this->type == SUBWAY)
-		return this->weight * SUBWAY_MULTIPLIER;
+		return this->weight * SUBWAY_TIME_MULTIPLIER;
 	else if (this->type == BUS)
-		return this->weight * BUS_MULTIPLIER;
+		return this->weight * BUS_TIME_MULTIPLIER;
 	else
-		return this->weight * WALK_MULTIPLIER;
+		return this->weight * WALK_TIME_MULTIPLIER;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -1080,7 +1080,6 @@ string Graph<T>::getDetailedPath(Node<T> * dest) const {
 	queue<string> queue;
 
 	double total_distance = dest->getDistance();
-
 	double total_price = dest->getPrice();
 
 	if (dest->getLastNode() == NULL) {
@@ -1120,7 +1119,6 @@ string Graph<T>::getDetailedPath(Node<T> * dest) const {
 	string price = to_string(round(total_price * 100) / 100).substr(0, 5);
 
 	result += "Total Time: " + time + " minutes.\n";
-
 	result += "Total Price: " + price + " euros.\n";
 
 	return result;
