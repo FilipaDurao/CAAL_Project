@@ -24,7 +24,7 @@
 
 const constexpr double BUS_TIME_MULTIPLIER = 0.025;
 const constexpr double SUBWAY_TIME_MULTIPLIER = 0.02;
-const constexpr double WALK_TIME_MULTIPLIER = 0.02;
+const constexpr double WALK_TIME_MULTIPLIER = 0.1;
 
 const constexpr double BUS_PRICE = 1.20;
 const constexpr double SUBWAY_PRICE = 1.70;
@@ -1020,12 +1020,12 @@ Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
 			if (v->getLastConnection() != it->getEdgeConnection())
 				new_price += it->getPriceWeight();
 
-			/*updating the distance
-			 * not important for the queue since its taking the price as the operator
-			 */
-			w->setDistance(v->getDistance() + it->getWeight());
-
 			if (old_price > new_price) {
+
+				/*updating the distance
+				 * not important for the queue since its taking the price as the operator
+				 */
+				w->setDistance(v->getDistance() + it->getWeight());
 
 				w->setPrice(new_price);
 				w->setLastNode(v);
