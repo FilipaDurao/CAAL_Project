@@ -509,7 +509,7 @@ public:
 
 	vector<T> getPath(Node<T> * dest) const;
 
-	string getDetailedPath(Node<T> * dest) const;
+	vector<Node<T>*> getDetailedPath(Node<T> * dest) const;
 
 	// ---- Dijkstra Algorithms ----
 	Node<T> * dijkstra_heap(Node<T> * startNode, Node<T> * endNode);
@@ -521,7 +521,7 @@ public:
 			double walk_distance);
 
 	// Print in the screen
-	void presentPath(vector<Node<T>> invertedPath);
+	void presentPath(vector<Node<T>*> invertedPath);
 };
 
 /**
@@ -1076,68 +1076,79 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
  *
  * @return string containing the information
  */
-
-/*
- * TODO create a new function that receives a vector with the inverted path and actually print the path
- * with an improved interface
- *
- * This one will only insert the nodes into a vector in order
- */
 template<class T>
-string Graph<T>::getDetailedPath(Node<T> * dest) const {
+vector<Node<T>*> Graph<T>::getDetailedPath(Node<T> * dest) const {
 
-	string result = "";
+	vector<Node<T>*> invertedPath;
 
-	queue<string> queue;
-
-	double total_distance = dest->getDistance();
-	double total_price = dest->getPrice();
-
+	// If there is no way to travel with the constraints, return a vector only with the destiny
 	if (dest->getLastNode() == NULL) {
-		string oops = "It is impossible to travel to ";
-		oops += dest->getInfo();
-		oops += " with those constrains!\n";
-		return oops;
+		invertedPath.push_back(dest);
+		return invertedPath;
 	}
 
-	string one_stop;
-
 	while (dest->getLastNode() != NULL) {
-		one_stop = "At ";
-
-		if (dest->getLastConnection() == "walk walk") {
-			one_stop += dest->getLastNode()->getInfo() + " ";
-			one_stop += dest->getLastConnection().substr(0, 4) + " to "
-					+ dest->getInfo() + "\n";
-		}
-
-		else {
-			one_stop += dest->getLastNode()->getInfo() + " catch the ";
-			one_stop += dest->getLastConnection() + " to " + dest->getInfo()
-					+ "\n";
-		}
-
-		queue.push(one_stop);
+		invertedPath.push_back(dest);
 		dest = dest->getLastNode();
 	}
 
-	while (!queue.empty()) {
-		result = queue.front() + result;
-		queue.pop();
+	return invertedPath;
+}
+
+template<class T>
+void Graph<T>::presentPath(vector<Node<T>*> invertedPath){
+
+	double total_distance = invertedPath.at(0)->getDistance();
+	double total_price = invertedPath.at(0)->getPrice();
+
+	if (invertedPath.size() == 1) {
+		cout << "It is impossible to travel to " << invertedPath.at(0)->getInfo() << " with those constrains!\n";
+	}
+
+	string previousConnection = "";
+
+	for(int i = invertedPath.size()-1; i >= 0; i--){
+
+		cout << "At " << invertedPath.at(i)->getLastNode()->getInfo() << " ";
+
+		if (invertedPath.at(i)->getLastConnection() == "walk walk") {
+			cout << invertedPath.at(i)->getLastConnection().substr(0, 4) << " to "
+				 << invertedPath.at(i)->getInfo() << endl;
+		}
+
+		else {
+
+			if(invertedPath.at(i)->getLastConnection() == previousConnection){
+				cout << " continue on the "
+					 << invertedPath.at(i)->getLastConnection() << " until "
+					 << invertedPath.at(i)->getInfo() << endl;
+			}
+
+			else{
+				cout << " catch the "
+					 << invertedPath.at(i)->getLastConnection() << " to "
+					 << invertedPath.at(i)->getInfo() << endl;
+			}
+		}
+
+		previousConnection = invertedPath.at(i)->getLastConnection();
 	}
 
 	string time = to_string(round(total_distance * 100) / 100).substr(0, 5);
 	string price = to_string(round(total_price * 100) / 100).substr(0, 5);
 
-	result += "Total Time: " + time + " minutes.\n";
-	result += "Total Price: " + price + " euros.\n";
+	cout << "\nTotal Time: " + time + " minutes.\n";
+	cout << "Total Price: " + price + " euros.\n";
 
-	return result;
-}
-
-template<class T>
-void Graph<T>::presentPath(vector<Node<T>> invertedPath){
-	//TODO
 }
 
 #endif /* GRAPH_H_ */
+
+
+
+
+
+
+
+
+

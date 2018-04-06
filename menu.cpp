@@ -128,7 +128,8 @@ static void makeChoice(Graph<string> &g){
 	// run Dijkstra based on criterion
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
 
-	cout << g.getDetailedPath(lastNode) << endl;
+	vector<Node<string>*> invertedPath = g.getDetailedPath(lastNode);
+	g.presentPath(invertedPath);
 
 	vector<string> t = g.getPath(lastNode);
 
