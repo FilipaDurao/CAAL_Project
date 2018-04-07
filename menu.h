@@ -2,6 +2,7 @@
 #define MENU_H_
 
 #include "Graph.h"
+#include "GraphViewer/graphviewer.h"
 #include <string>
 
 enum pathCriterion
@@ -13,15 +14,19 @@ enum pathCriterion
 };
 
 void menu(Graph<string>& g);
+void menuStart(Graph<string>& g);
 static void menuListStation(const Graph<string> &g);
-static void makeChoice(Graph<string> &g);
-static int wantToExit();
-
+static void menuChooseStations(Graph<string> &g);
+static bool wantToExit();
 static void presentPath(vector<string> t);
 static pathCriterion getPathCriterion();
 
 static Node<string>* run_Dijkstra(Graph<string>& g, Node<string>* startNode, Node<string>* endNode, pathCriterion criterion);
 
-bool isNumber(string input);
+static bool isNumber(string input);
+
+static int getMenuOptionInput(int lower_bound, int upper_bound, string out_question);
+
+void menuShowGraphViewer(Graph<string>& g);
 
 #endif

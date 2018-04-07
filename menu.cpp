@@ -1,29 +1,79 @@
 #include "menu.h"
 #include <vector>
 
-void menu(Graph<string> &g) {
+void menu(Graph<string>& g) {
 
 	cout << "\n\nWELCOME TO TRIP PLANNER! \n\n";
 	cout << "Press enter to continue...\n";
 	getchar();
+	bool exit = false;
 
-	int toExit = 0;
-
-	while (!toExit) {
-
-		cout << "\n\n\nHere is a list with all the stops available\n\n";
-
+	while (!exit) {
+		menuStart(g);
 		menuListStation(g);		// display the stations
 		cout << endl;
 
-		makeChoice(g);
-		toExit = wantToExit();
+		menuChooseStations(g);
+		exit = wantToExit();
 	}
 
 	cout << "\n\nClosing...";
 }
 
-static int wantToExit() {
+void menuStart(Graph<string>& g) {
+	cout << "\n\n";
+	cout << "[0] - View the full map";
+	cout << "[1] - Plan the trip";
+	menuShowGraphViewer(g);
+	if(getMenuOptionInput(0,1, "What would you like to do") == 0) {
+
+	}
+
+
+}
+
+void menuShowGraphViewer(Graph<string>& g) {
+	GraphViewer *gv = new GraphViewer(2000,2000,false);
+	gv->createWindow(1000,1000);
+
+	// edge id's
+	int edge_id = 0;
+	// Get the nodes
+	vector<Node<string>*> nodes = g.getNodes();
+	for(int i = 0; i < nodes.size(); i++){
+		// add the node to graphViewer
+		Node<string>* n = nodes.at(i);
+		gv->addNode(n->getId(), n->getX()/2, n->getY()/2);
+		gv->setVertexSize(n->getId(), 60);
+		gv->setVertexLabel(n->getId(), n->getInfo());
+
+		// add  the edges (this might not work because not all nodes are defined yet)
+		vector<Edge<string>> edges = nodes.at(i)->getEdges();
+		for(int j = 0; j < edges.size(); j++) {
+			if(edges.at(j).getType() != "walk") {
+				gv->addEdge(edge_id, n->getId(), edges.at(j).getDestiny()->getId(), EdgeType::DIRECTED);
+				gv->setEdgeLabel(edge_id, edges.at(j).getLineID());
+				gv->setEdgeThickness(edge_id, 5);
+
+				if(edges.at(j).getType() == "bus") {
+					gv->setEdgeColor(edge_id, CYAN);
+				}
+				else if(edges.at(j).getType() == "subway") {
+					gv->setEdgeColor(edge_id, GREEN);
+				}
+
+				edge_id++;
+			}
+		}
+
+		gv->rearrange();
+	}
+
+	gv->rearrange();
+	getchar();
+	gv->closeWindow();
+}
+static bool wantToExit() {
 
 	cout << "\n\n\nDo you want to: ";
 	cout << "\n[0] - Continue using TripPlanner";
@@ -55,7 +105,7 @@ static int wantToExit() {
 
 	opt = stoi(opt_s);
 
-	return opt;
+	return (opt == 0 ? false : true);
 }
 
 static void menuListStation(const Graph<string> &g) {
@@ -65,7 +115,7 @@ static void menuListStation(const Graph<string> &g) {
 		cout << "[" << i << "] - " << nodes.at(i)->getInfo() << endl;
 }
 
-static void makeChoice(Graph<string> &g) {
+static void menuChooseStations(Graph<string> &g) {
 
 	// ask for departure station
 	string origin_id_s, dest_id_s;
@@ -258,3 +308,33 @@ bool isNumber(string input) {
 
 	return true;
 }
+
+static int getMenuOptionInput(int lower_bound, int upper_bound, string out_question) {
+	int opt;
+	string opt_s;
+
+	cout << out_question << " ? ";
+	cin >> opt_s;
+
+	while (opt < lower_bound || opt > upper_bound) {
+
+		if (!isNumber(opt_s)) {
+			while (!isNumber(opt_s)) {
+				cout << out_question << " ? ";
+				cin >> opt_s;
+				cin.ignore(1000, '\n');
+			}
+		}
+
+		opt = stoi(opt_s);
+
+		if (opt < lower_bound || opt < upper_bound) {
+			opt = -1;
+			cout << "Invalid input\n\n";
+		}
+	}
+
+	return opt;
+}
+
+
