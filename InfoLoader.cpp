@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void loadNodes(Graph<string> & grafo, GraphViewer* gv) {
+void loadNodes(Graph<string> & grafo) {
 
 	string line;
 	ifstream file("nos.txt");
@@ -35,19 +35,12 @@ void loadNodes(Graph<string> & grafo, GraphViewer* gv) {
 		sLine >> y;
 
 		grafo.addNode(info, x, y);
-
-		// Add the node to graphViewer
-		gv->addNode(id, x/2, y/2); // dividing by 5 to fit on grid
-		gv->setVertexLabel(id, info);
-		gv->setVertexSize(id, 60);
-		gv->rearrange();
-		id++;
 	}
 
 	file.close();
 }
 
-void loadEdges(Graph<string> & grafo, GraphViewer* gv) {
+void loadEdges(Graph<string> & grafo) {
 
 	// -> ID ARESTA / NODE ID INICIO / NODE ID FINAL / TYPE / LINE
 
@@ -89,19 +82,9 @@ void loadEdges(Graph<string> & grafo, GraphViewer* gv) {
 		double weight = sqrt(pow((x_f - x_i), 2) + pow((y_f - y_i), 2));
 
 		if(type == BUS) {
-			gv->addEdge(edge_id,id_init, id_end, EdgeType::DIRECTED);
-			gv->setEdgeColor(edge_id, CYAN);
-			gv->setEdgeLabel(edge_id, lineType);
-			gv->setEdgeThickness(edge_id, 5);
-
 			grafo.addBusEdge(id_init,id_end,weight,lineType);
 		}
 		else if(type == SUBWAY) {
-			gv->addEdge(edge_id,id_init, id_end, EdgeType::DIRECTED);
-			gv->setEdgeColor(edge_id, GREEN);
-			gv->setEdgeLabel(edge_id, lineType);
-			gv->setEdgeThickness(edge_id, 5);
-
 			grafo.addSubwayEdge(id_init, id_end,weight,lineType);
 		}
 		else

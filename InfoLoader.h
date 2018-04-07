@@ -9,13 +9,11 @@ using namespace std;
  *
  * @param grafo - the Graph into which the information will be loaded to
  */
-void loadNodes(Graph<string> & grafo, GraphViewer* gv);
+void loadNodes(Graph<string> & grafo);
 
 /**
  * @brief Loads all the Edge information from the file into the graph Nodes
  *
  * @param grafo - the Graph into which the information will be loaded to
  */
-void loadEdges(Graph<string> & grafo, GraphViewer* gv);
-
-void exercicio2(GraphViewer *gv);
+void loadEdges(Graph<string> & grafo);

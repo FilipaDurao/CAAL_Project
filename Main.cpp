@@ -18,12 +18,9 @@ int main() {
 
 	Graph<string> grafo;
 
-	GraphViewer *gv = new GraphViewer(1000,1000,false);
-	gv->createWindow(1000,1000);
-	gv->defineEdgeCurved(true);
-	loadNodes(grafo, gv);
-	loadEdges(grafo, gv);
-	getchar();
+
+	loadNodes(grafo);
+	loadEdges(grafo);
 
 	menu(grafo);
 
