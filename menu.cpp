@@ -21,12 +21,20 @@ void menu(Graph<string>& g) {
 }
 
 void menuStart(Graph<string>& g) {
+	int option;
 	cout << "\n\n";
-	cout << "[0] - View the full map";
-	cout << "[1] - Plan the trip";
-	menuShowGraphViewer(g);
-	if(getMenuOptionInput(0,1, "What would you like to do") == 0) {
+	cout << "[0] - View the full map\n";
+	cout << "[1] - Plan the trip\n";
+	cout << "?";
 
+	cin >> option;
+	cin.ignore(1000, '\n');
+	if(option == 0) {
+		menuShowGraphViewer(g);
+	}
+	else {
+		menuListStation(g);
+		menuChooseStations(g);
 	}
 
 
@@ -70,9 +78,12 @@ void menuShowGraphViewer(Graph<string>& g) {
 	}
 
 	gv->rearrange();
+	cout << "Press any key to close window ...\n";
 	getchar();
 	gv->closeWindow();
 }
+
+
 static bool wantToExit() {
 
 	cout << "\n\n\nDo you want to: ";
