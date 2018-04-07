@@ -143,6 +143,21 @@ static void presentPath(vector<string> t){
 		else
 			cout << t.at(i);
 	}
+
+	cout << endl << endl << "Now with A Star:\n";
+
+	g.A_Star(startNode, endNode);
+
+	cout << g.getDetailedPath(lastNode) << endl;
+
+	t = g.getPath(lastNode);
+
+		for (size_t i = 0; i < t.size(); i++) {
+			if (i < (t.size() - 1))
+				cout << t.at(i) << "->";
+			else
+				cout << t.at(i);
+		}
 }
 
 static pathCriterion getPathCriterion() {

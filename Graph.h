@@ -82,6 +82,7 @@ public:
 	T getInfo() const;
 	int getX() const;
 	int getY() const;
+	double euclidianDistance(Node<T> * node);
 
 	// ---- Needed for Dijkstra with Transbordos ----
 	int getNumTransbords() const;
@@ -97,17 +98,49 @@ public:
 	void clearLastNode();
 	void setVisited(bool vis);
 	bool getVisited() const;
-
-	// ---- Mutable Priority Queue Info ----
-	bool operator<(Node<T> & node) const;
 	double getPrice() const;
 	void setPrice(double price);
 
+	// ---- Mutable Priority Queue Info ----
+	bool operator<(Node<T> & node) const;
 	int queueIndex = 0;
 
 	static bool sortByDistance;
 
+	// ---- A * Info ----
+	double heuristic(Node<T> * currentNode, Node<T> * goalNode);
+
 };
+
+/**
+ * @Brief Returns A * Algorithm Heuristic, based on the euclidian Distance.
+ *
+ * @return Heuristic
+ */
+template<typename T>
+double Node<T>::heuristic(Node<T> * currentNode, Node<T> * goalNode) {
+
+	double g = currentNode->getDistance();
+	double h = currentNode->euclidianDistance(goalNode);
+	double f = g + h;
+
+	return f;
+}
+
+/**
+ * @Brief Returns the euclidian distance between two nodes
+ *
+ * @return Euclidian distance
+ */
+template<typename T>
+double Node<T>::euclidianDistance(Node<T> * node) {
+
+	return SUBWAY_TIME_MULTIPLIER
+			* sqrt(
+					(this->x - node->x) * (this->x - node->x)
+							+ (this->y - node->y) * (this->y - node->y));
+
+}
 
 template<typename T>
 bool Node<T>::sortByDistance = true;
@@ -499,7 +532,7 @@ public:
 	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
 	vector<Node<T> *> getNodes() const;
 
-	// ---- Edges Types ----
+// ---- Edges Types ----
 	void addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
 			double weight, string lineID);
 	void addSubwayEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
@@ -511,8 +544,9 @@ public:
 
 	vector<Node<T>*> getDetailedPath(Node<T> * dest) const;
 
-	// ---- Dijkstra Algorithms ----
+// ---- Dijkstra Algorithms ----
 	Node<T> * dijkstra_heap(Node<T> * startNode, Node<T> * endNode);
+
 	Node<T> * dijkstra_queue(Node<T> * startNode, Node<T> * endNode);
 	Node<T> * dijkstra_queue_NO_WALK(Node<T> * startNode, Node<T> * endNode);
 	Node<T> * dijkstra_queue_TRANSBORDS(Node<T> * startNode, Node<T> * endNode,
@@ -521,7 +555,10 @@ public:
 			double walk_distance);
 
 	// Print in the screen
-	void presentPath(vector<Node<T>*> invertedPath);
+	void presentPath(vector<Node<T>> invertedPath);
+
+// ---- A Star Algorithms ----
+	Node<T> * A_Star(Node<T> * startNode, Node<T> * endNode);
 };
 
 /**
@@ -682,7 +719,7 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 	startNode->setDistance(0);
 	path.push_back(startNode);
 
-	//making the heap, since it only has one element does not need the function
+//making the heap, since it only has one element does not need the function
 	make_heap(path.begin(), path.end());
 
 	Node<T> * v;
@@ -726,6 +763,82 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 }
 
 /**
+ *
+ */
+template<class T>
+Node<T> * Graph<T>::A_Star(Node<T> * startNode, Node<T> * endNode) {
+
+//initial setup to compare by distance
+	Node<T>::sortByDistance = true;
+
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
+		(*it)->setDistance(DBL_MAX);
+		(*it)->clearLastNode();
+		(*it)->setVisited(false);
+		(*it)->setLastConnection("NOT");
+		(*it)->setPrice(0);
+	}
+
+	startNode->setDistance(0);
+	startNode->setLastConnection("FIRST");
+	MutablePriorityQueue<Node<T> > q;
+	q.insert(startNode);
+
+	Node<T> * v;
+	Node<T> * w;
+	double old_distance;
+	double new_distance;
+
+	while (!q.empty()) {
+
+		v = q.extractMin();
+
+		if (v->getId() == endNode->getId()) {
+			endNode->setDistance(
+					endNode->getDistance()
+							+ startNode->euclidianDistance(endNode));
+			break;
+
+		}
+
+		for (auto it = v->getEdges().begin(); it != v->getEdges().end(); it++) {
+
+			w = it->getDestiny();
+			old_distance = w->getDistance();
+			new_distance = (v->getDistance() + it->getWeight())
+					- v->euclidianDistance(endNode)
+					+ w->euclidianDistance(endNode);
+
+			if (old_distance > new_distance) {
+
+				/*updating the prices
+				 * not important for the queue since it's taking distance as the operator
+				 */
+				if (v->getLastConnection() != it->getEdgeConnection())
+					w->setPrice(v->getPrice() + it->getPriceWeight());
+
+				else
+					w->setPrice(v->getPrice());
+
+				w->setDistance(new_distance);
+				w->setLastNode(v);
+				w->setLastConnection(it->getEdgeConnection());
+				if (!w->getVisited())
+					q.insert(w);
+				else
+					q.decreaseKey(w);
+
+				w->setVisited(true);
+
+			}
+		}
+	}
+
+	return endNode;
+
+}
+
+/**
  * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue
  *
  * @param startNode - the beginning Node of the path
@@ -736,7 +849,7 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 template<class T>
 Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
-	//initial setup to compare by distance
+//initial setup to compare by distance
 	Node<T>::sortByDistance = true;
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
@@ -811,7 +924,7 @@ template<class T>
 Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 		Node<T> * endNode) {
 
-	//initial setup to compare by distance
+//initial setup to compare by distance
 	Node<T>::sortByDistance = true;
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
@@ -893,7 +1006,7 @@ template<class T>
 Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 		Node<T> * endNode, int maxNum) {
 
-	//initial setup to compare by distance
+//initial setup to compare by distance
 	Node<T>::sortByDistance = true;
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
@@ -986,7 +1099,7 @@ template<class T>
 Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
 		double walk_distance) {
 
-	//initial setup to compare by distance
+//initial setup to compare by distance
 	Node<T>::sortByDistance = false;
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
