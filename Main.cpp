@@ -10,6 +10,7 @@
 #include "Test.h"
 #include "InfoLoader.h"
 #include "menu.h"
+#include "GraphViewer/graphviewer.h"
 
 using namespace std;
 
@@ -40,10 +41,16 @@ int main() {
 //
 //	cout << endl << grafo.getDetailedPath(lastNode, TIME_MODE);
 
-	loadNodes(grafo);
-	loadEdges(grafo);
+	GraphViewer *gv = new GraphViewer(1000,1000,false);
+	gv->createWindow(1000,1000);
+	gv->defineEdgeCurved(true);
+	loadNodes(grafo, gv);
+	loadEdges(grafo, gv);
+	//exercicio2(gv);
+	getchar();
 
-	menu(grafo);
+
+	//menu(grafo);
 	/*
 	Node<string> *lastNode;
 	vector<string> t;
