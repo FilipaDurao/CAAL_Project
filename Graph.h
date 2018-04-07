@@ -555,7 +555,7 @@ public:
 			double walk_distance);
 
 	// Print in the screen
-	void presentPath(vector<Node<T>> invertedPath);
+	void presentPath(vector<Node<T>*> invertedPath);
 
 // ---- A Star Algorithms ----
 	Node<T> * A_Star(Node<T> * startNode, Node<T> * endNode);
