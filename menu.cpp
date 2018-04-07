@@ -10,10 +10,6 @@ void menu(Graph<string>& g) {
 
 	while (!exit) {
 		menuStart(g);
-		menuListStation(g);		// display the stations
-		cout << endl;
-
-		menuChooseStations(g);
 		exit = wantToExit();
 	}
 
@@ -204,6 +200,10 @@ static void menuChooseStations(Graph<string> &g) {
 
 	presentPath(t);
 
+	// Show map
+	invertedPath.push_back(lastNode);
+	buildGraphViewerDeatiledPath(g,invertedPath);
+
 }
 
 static void presentPath(vector<string> t) {
@@ -349,3 +349,55 @@ static int getMenuOptionInput(int lower_bound, int upper_bound, string out_quest
 }
 
 
+GraphViewer* buildGraphViewer(Graph<string>& g) {
+	GraphViewer *gv = new GraphViewer(2000,2000,false);
+	gv->createWindow(1000,1000);
+
+	// edge id's
+	int edge_id = 0;
+	// Get the nodes
+	vector<Node<string>*> nodes = g.getNodes();
+	for(int i = 0; i < nodes.size(); i++){
+		// add the node to graphViewer
+		Node<string>* n = nodes.at(i);
+		gv->addNode(n->getId(), n->getX()/2, n->getY()/2);
+		gv->setVertexSize(n->getId(), 60);
+		gv->setVertexLabel(n->getId(), n->getInfo());
+
+		// add  the edges (this might not work because not all nodes are defined yet)
+		vector<Edge<string>> edges = nodes.at(i)->getEdges();
+		for(int j = 0; j < edges.size(); j++) {
+			if(edges.at(j).getType() != "walk") {
+				gv->addEdge(edge_id, n->getId(), edges.at(j).getDestiny()->getId(), EdgeType::DIRECTED);
+				gv->setEdgeLabel(edge_id, edges.at(j).getLineID());
+				gv->setEdgeThickness(edge_id, 5);
+
+				if(edges.at(j).getType() == "bus") {
+					gv->setEdgeColor(edge_id, CYAN);
+				}
+				else if(edges.at(j).getType() == "subway") {
+					gv->setEdgeColor(edge_id, GREEN);
+				}
+
+				edge_id++;
+			}
+		}
+
+		gv->rearrange();
+	}
+
+	gv->rearrange();
+	return gv;
+}
+
+GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*> nodes) {
+	// build the whole map
+	GraphViewer *gv = buildGraphViewer(g);
+
+	// Change path nodes color
+	for(unsigned int i = 0; i < nodes.size(); i++) {
+		gv->setVertexColor(nodes.at(i)->getId(), RED);
+	}
+
+	return gv;
+}

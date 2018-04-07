@@ -28,5 +28,7 @@ static bool isNumber(string input);
 static int getMenuOptionInput(int lower_bound, int upper_bound, string out_question);
 
 void menuShowGraphViewer(Graph<string>& g);
+GraphViewer* buildGraphViewer(Graph<string>& g);
+GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*> nodes);
 
 #endif
