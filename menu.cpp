@@ -134,11 +134,8 @@ static void makeChoice(Graph<string> &g) {
 	cout << endl << endl << "Now with A Star:\n";
 
 	g.A_Star(startNode, endNode);
-
 	invertedPath = g.getDetailedPath(lastNode);
-
 	g.presentPath(invertedPath);
-
 	t = g.getPath(lastNode);
 
 	presentPath(t);

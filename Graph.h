@@ -375,11 +375,17 @@ bool Node<T>::getVisited() const {
 	return this->visited;
 }
 
+/**
+ * @brief Returns the price of the trip up to that Node
+ */
 template<typename T>
 inline double Node<T>::getPrice() const {
 	return price;
 }
 
+/**
+ * @brief Sets the price of the trip up to that Node
+ */
 template<typename T>
 inline void Node<T>::setPrice(double price) {
 	this->price = price;
@@ -699,7 +705,7 @@ struct compareDistance {
 };
 
 /**
- * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, using a heap
+ * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, implementing Dijkstra, using a heap
  *
  * @param startNode - the beginning Node of the path
  * @param endNode - the end Node of the path
@@ -763,7 +769,7 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 }
 
 /**
- *
+ * TODO document
  */
 template<class T>
 Node<T> * Graph<T>::A_Star(Node<T> * startNode, Node<T> * endNode) {
@@ -839,7 +845,7 @@ Node<T> * Graph<T>::A_Star(Node<T> * startNode, Node<T> * endNode) {
 }
 
 /**
- * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue
+ * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, implementing Dijkstra, using a mutable priority queue
  *
  * @param startNode - the beginning Node of the path
  * @param endNode - the end Node of the path
@@ -912,7 +918,7 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 }
 
 /**
- * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, without walking, using a mutable priority queue
+ * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, without walking, implementing Dijkstra, using a mutable priority queue
  *
  *
  * @param startNode - the beginning Node of the path
@@ -991,7 +997,7 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 }
 
 /**
- * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue, and allowing
+ * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, implementing Dijkstra, using a mutable priority queue, and allowing
  * only some exchanges between transports
  *
  *
@@ -1087,7 +1093,7 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 }
 
 /**
- * @brief Calculates the cheapest path the startNode to the endNode, using a mutable priority queue
+ * @brief Calculates the cheapest path the startNode to the endNode, implementing Dijkstra, using a mutable priority queue
  *
  *
  * @param startNode - the beginning Node of the path
@@ -1186,8 +1192,7 @@ vector<T> Graph<T>::getPath(Node<T> * dest) const {
  *
  * @param dest - the destiny Node
  *
- *
- * @return string containing the information
+ * @return a vector with the path reversed
  */
 template<class T>
 vector<Node<T>*> Graph<T>::getDetailedPath(Node<T> * dest) const {
@@ -1208,6 +1213,11 @@ vector<Node<T>*> Graph<T>::getDetailedPath(Node<T> * dest) const {
 	return invertedPath;
 }
 
+/**
+ * @brief Presents on the screen the detailed information about the path
+ *
+ * @param invertedPath - a vector with the Nodes of the path, but reversed
+ */
 template<class T>
 void Graph<T>::presentPath(vector<Node<T>*> invertedPath){
 
@@ -1219,26 +1229,41 @@ void Graph<T>::presentPath(vector<Node<T>*> invertedPath){
 	}
 
 	string previousConnection = "";
+	string currentConnection;
 
 	for(int i = invertedPath.size()-1; i >= 0; i--){
 
-		cout << "At " << invertedPath.at(i)->getLastNode()->getInfo() << " ";
+		currentConnection = invertedPath.at(i)->getLastConnection();
 
 		if (invertedPath.at(i)->getLastConnection() == "walk walk") {
-			cout << invertedPath.at(i)->getLastConnection().substr(0, 4) << " to "
+			cout << "At " << invertedPath.at(i)->getLastNode()->getInfo() << " "
+				 << invertedPath.at(i)->getLastConnection().substr(0, 4) << " to "
 				 << invertedPath.at(i)->getInfo() << endl;
 		}
 
 		else {
 
 			if(invertedPath.at(i)->getLastConnection() == previousConnection){
-				cout << " continue on the "
+				cout << "At " << invertedPath.at(i)->getLastNode()->getInfo() << " "
+				     << " continue on the "
 					 << invertedPath.at(i)->getLastConnection() << " until "
 					 << invertedPath.at(i)->getInfo() << endl;
 			}
 
 			else{
-				cout << " catch the "
+				cout << "At " << invertedPath.at(i)->getLastNode()->getInfo() << " get to the ";
+
+				if(currentConnection.substr(0,1) == "s"){
+					cout << invertedPath.at(i)->getLastNode()->getInfo()
+						 << "'s subway station" << endl;
+				}
+				else{
+					cout << invertedPath.at(i)->getLastNode()->getInfo()
+						 << "'s bus station" << endl;
+				}
+
+				cout << "At " << invertedPath.at(i)->getLastNode()->getInfo() << " "
+					 << " catch the "
 					 << invertedPath.at(i)->getLastConnection() << " to "
 					 << invertedPath.at(i)->getInfo() << endl;
 			}
