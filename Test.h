@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <queue>
+#include <algorithm>
 #include <list>
 #include <limits>
 #include <cfloat>
@@ -21,6 +22,12 @@
 void test_performance_dijkstra_queue();
 
 void test_performance_dijkstra_heap();
+
+void compareAlgorithmsExtendedVersion();
+
+void compareAlgorithmsMatrixVersion();
+
+void testPath();
 
 
 #endif
