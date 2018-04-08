@@ -37,43 +37,8 @@ void menuStart(Graph<string>& g) {
 }
 
 void menuShowGraphViewer(Graph<string>& g) {
-	GraphViewer *gv = new GraphViewer(2000,2000,false);
-	gv->createWindow(1000,1000);
+	GraphViewer *gv = buildGraphViewer(g);
 
-	// edge id's
-	int edge_id = 0;
-	// Get the nodes
-	vector<Node<string>*> nodes = g.getNodes();
-	for(int i = 0; i < nodes.size(); i++){
-		// add the node to graphViewer
-		Node<string>* n = nodes.at(i);
-		gv->addNode(n->getId(), n->getX()/2, n->getY()/2);
-		gv->setVertexSize(n->getId(), 60);
-		gv->setVertexLabel(n->getId(), n->getInfo());
-
-		// add  the edges (this might not work because not all nodes are defined yet)
-		vector<Edge<string>> edges = nodes.at(i)->getEdges();
-		for(int j = 0; j < edges.size(); j++) {
-			if(edges.at(j).getType() != "walk") {
-				gv->addEdge(edge_id, n->getId(), edges.at(j).getDestiny()->getId(), EdgeType::DIRECTED);
-				gv->setEdgeLabel(edge_id, edges.at(j).getLineID());
-				gv->setEdgeThickness(edge_id, 5);
-
-				if(edges.at(j).getType() == "bus") {
-					gv->setEdgeColor(edge_id, CYAN);
-				}
-				else if(edges.at(j).getType() == "subway") {
-					gv->setEdgeColor(edge_id, GREEN);
-				}
-
-				edge_id++;
-			}
-		}
-
-		gv->rearrange();
-	}
-
-	gv->rearrange();
 	cout << "Press any key to close window ...\n";
 	getchar();
 	gv->closeWindow();
@@ -369,12 +334,7 @@ GraphViewer* buildGraphViewer(Graph<string>& g) {
 				gv->setEdgeLabel(edge_id, edges.at(j).getLineID());
 				gv->setEdgeThickness(edge_id, 5);
 
-				if(edges.at(j).getType() == "bus") {
-					gv->setEdgeColor(edge_id, CYAN);
-				}
-				else if(edges.at(j).getType() == "subway") {
-					gv->setEdgeColor(edge_id, GREEN);
-				}
+				setGraphViewerEdgeColor(gv, edge_id, edges.at(j).getLineID());
 
 				edge_id++;
 			}
@@ -397,4 +357,20 @@ GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*
 	}
 
 	return gv;
+}
+
+void setGraphViewerEdgeColor(GraphViewer *gv, int edge_id, string lineID) {
+	if(lineID == "B")
+		gv->setEdgeColor(edge_id, RED);
+	else if (lineID == "F")
+		gv->setEdgeColor(edge_id, ORANGE);
+	else if (lineID == "D")
+		gv->setEdgeColor(edge_id, YELLOW);
+	else if (lineID == "401")
+		gv->setEdgeColor(edge_id, GREEN);
+	else if (lineID == "204")
+		gv->setEdgeColor(edge_id, CYAN);
+	else if (lineID == "803")
+		gv->setEdgeColor(edge_id, MAGENTA); // purpuple
+
 }

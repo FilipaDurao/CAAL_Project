@@ -30,5 +30,6 @@ static int getMenuOptionInput(int lower_bound, int upper_bound, string out_quest
 void menuShowGraphViewer(Graph<string>& g);
 GraphViewer* buildGraphViewer(Graph<string>& g);
 GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*> nodes);
+void setGraphViewerEdgeColor(GraphViewer *gv, int edge_id, string lineID);
 
 #endif
