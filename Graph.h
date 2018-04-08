@@ -30,6 +30,8 @@ const constexpr double BUS_PRICE = 1.20;
 const constexpr double SUBWAY_PRICE = 1.70;
 const constexpr double WALK_PRICE = 0.0;
 
+const constexpr double DEFAULT_TRANSBORD_TIME = 5.0;
+
 const string TIME_MODE = "time";
 const string PRICE_MODE = "price";
 
@@ -61,6 +63,7 @@ private:
 	Node<T> * lastNode;
 	int x;
 	int y;
+	double transbord_time;
 
 	// ---- Needed for Dijkstra with Transbordos ----
 	int numTransbords;
@@ -68,6 +71,7 @@ private:
 
 	// ---- Needed for Dijsktra with Price -----
 	double price;
+	double walked_time;
 
 public:
 	Node(const T &value, unsigned int ID);
@@ -83,12 +87,15 @@ public:
 	int getX() const;
 	int getY() const;
 	double euclidianDistance(Node<T> * node);
+	double getTransbordTime() const;
+	void setTransbordTime(double time);
 
 	// ---- Needed for Dijkstra with Transbordos ----
 	int getNumTransbords() const;
 	void setNumTransbords(int i);
 	string getLastConnection() const;
 	void setLastConnection(string connect);
+	string getLastTypeConnection() const;
 
 	// ---- DIJKSTRA INFO ----
 	double getDistance() const;
@@ -100,6 +107,8 @@ public:
 	bool getVisited() const;
 	double getPrice() const;
 	void setPrice(double price);
+	double getWalkedTime() const;
+	void setWalkedTime(double distance);
 
 	// ---- Mutable Priority Queue Info ----
 	bool operator<(Node<T> & node) const;
@@ -107,24 +116,36 @@ public:
 
 	static bool sortByDistance;
 
-	// ---- A * Info ----
-	double heuristic(Node<T> * currentNode, Node<T> * goalNode);
-
 };
 
+template<typename T>
+void Node<T>::setWalkedTime(double time) {
+	this->walked_time = time;
+}
+
+template<typename T>
+double Node<T>::getWalkedTime() const {
+	return this->walked_time;
+}
+
 /**
- * @Brief Returns A * Algorithm Heuristic, based on the euclidian Distance.
+ * @brief Returns the node's transbord time
  *
- * @return Heuristic
+ * @return transbord time
  */
 template<typename T>
-double Node<T>::heuristic(Node<T> * currentNode, Node<T> * goalNode) {
+double Node<T>::getTransbordTime() const {
+	return this->transbord_time;
+}
 
-	double g = currentNode->getDistance();
-	double h = currentNode->euclidianDistance(goalNode);
-	double f = g + h;
-
-	return f;
+/**
+ * @brief Sets the node's transbord time
+ *
+ * @param time - the new transbord time
+ */
+template<typename T>
+void Node<T>::setTransbordTime(double time) {
+	this->transbord_time = time;
 }
 
 /**
@@ -165,6 +186,18 @@ int Node<T>::getY() const {
 	return this->y;
 }
 
+/**
+ * @brief Gives information about the type of transportation used to get to that node
+ *
+ * @see Node<T>::getLastConnection()
+ *
+ * @return string containing the information
+ */
+template<typename T>
+string Node<T>::getLastTypeConnection() const {
+
+	return this->getLastConnection().substr(0, 4);
+}
 /**
  * @brief Gives the information about the last edge that connected to this node
  *
@@ -226,6 +259,8 @@ Node<T>::Node(const T &info, unsigned int ID) {
 	this->x = 0;
 	this->y = 0;
 	this->numTransbords = 0;
+	this->transbord_time = 0;
+	this->price = 0;
 }
 
 /**
@@ -247,6 +282,8 @@ Node<T>::Node(const T &info, unsigned int ID, int x, int y) {
 	this->x = x;
 	this->y = y;
 	this->numTransbords = 0;
+	this->transbord_time = 0;
+	this->price = 0;
 }
 
 /**
@@ -544,6 +581,7 @@ public:
 	Node<T> * getNodeByID(unsigned int ID) const;//Get one node of the graph by its ID
 	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
 	vector<Node<T> *> getNodes() const;
+	void findInterfaces();
 
 // ---- Edges Types ----
 	void addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
@@ -573,6 +611,47 @@ public:
 // ---- A Star Algorithms ----
 	Node<T> * A_Star(Node<T> * startNode, Node<T> * endNode);
 };
+
+/**
+ * @brief Checks which nodes of the graph are an interface for the different types of transports.
+ *
+ * By interface, we mean a single stop where the user can catch the bus or subway.
+ * There will be a certain time of exchanging between them.
+ *
+ */
+template<typename T>
+void Graph<T>::findInterfaces() {
+
+	int counter = 0;
+
+	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
+
+		set<string> types;
+
+		for (auto i = (*it)->getEdges().begin(); i != (*it)->getEdges().end();
+				i++) {
+
+			if (i->getType() != WALK) {
+				types.insert(i->getType());
+
+				if (types.size() > 1) {
+					(*it)->setTransbordTime(DEFAULT_TRANSBORD_TIME);
+
+					//TODO ELIMINATE THIS, DEBUG MODE
+					cout << (*it)->getInfo() << " is an interface " << counter++
+							<< " " << i->getType() << endl;
+					types.clear();
+					break;
+				}
+			}
+
+		}
+
+		types.clear();
+
+	}
+
+}
 
 /**
  * @brief Returns a node by its ID
@@ -714,6 +793,8 @@ struct compareDistance {
 /**
  * @brief Returns a vector with the path with the "smallest" distance from the startNode to the endNode, implementing Dijkstra, using a heap
  *
+ * !!! NOT USED !!!
+ *
  * @param startNode - the beginning Node of the path
  * @param endNode - the end Node of the path
  *
@@ -776,12 +857,18 @@ Node<T> * Graph<T>::dijkstra_heap(Node<T> * startNode, Node<T> * endNode) {
 }
 
 /**
- * TODO document
+ * @brief Calculates the path with the "smallest" distance from the startNode to the endNode, using a mutable priority queue and the A Star algorithm
+ *
+ *
+ * @param startNode - the beginning Node of the path
+ * @param endNode - the end Node of the path
+ *
+ * @return Node * - the final Node of the path, so we can walk it back to get the best path
  */
 template<class T>
 Node<T> * Graph<T>::A_Star(Node<T> * startNode, Node<T> * endNode) {
 
-//initial setup to compare by distance
+	//initial setup to compare by distance
 	Node<T>::sortByDistance = true;
 
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
@@ -832,6 +919,16 @@ Node<T> * Graph<T>::A_Star(Node<T> * startNode, Node<T> * endNode) {
 
 				else
 					w->setPrice(v->getPrice());
+
+				/*
+				 * adding the transbord time if he changed the type of vehicle
+				 * ignoring walking
+				 */
+				if (v->getLastTypeConnection() != it->getType()
+						&& v->getLastTypeConnection() != WALK
+						&& it->getType() != WALK) {
+					new_distance += v->getTransbordTime();
+				}
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
@@ -906,6 +1003,16 @@ Node<T> * Graph<T>::dijkstra_queue(Node<T> * startNode, Node<T> * endNode) {
 
 				else
 					w->setPrice(v->getPrice());
+
+				/*
+				 * adding the transbord time if he changed the type of vehicle
+				 * ignoring walking
+				 */
+				if (v->getLastTypeConnection() != it->getType()
+						&& v->getLastTypeConnection() != WALK
+						&& it->getType() != WALK) {
+					new_distance += v->getTransbordTime();
+				}
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
@@ -984,6 +1091,16 @@ Node<T> * Graph<T>::dijkstra_queue_NO_WALK(Node<T> * startNode,
 
 				else
 					w->setPrice(v->getPrice());
+
+				/*
+				 * adding the transbord time if he changed the type of vehicle
+				 * ignoring walking
+				 */
+				if (v->getLastTypeConnection() != it->getType()
+						&& v->getLastTypeConnection() != WALK
+						&& it->getType() != WALK) {
+					new_distance += v->getTransbordTime();
+				}
 
 				w->setDistance(new_distance);
 				w->setLastNode(v);
@@ -1081,6 +1198,16 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 				else
 					w->setPrice(v->getPrice());
 
+				/*
+				 * adding the transbord time if he changed the type of vehicle
+				 * ignoring walking
+				 */
+				if (v->getLastTypeConnection() != it->getType()
+						&& v->getLastTypeConnection() != WALK
+						&& it->getType() != WALK) {
+					new_distance += v->getTransbordTime();
+				}
+
 				w->setDistance(new_distance);
 				w->setLastNode(v);
 				w->setLastConnection(it->getEdgeConnection());
@@ -1102,15 +1229,17 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 /**
  * @brief Calculates the cheapest path the startNode to the endNode, implementing Dijkstra, using a mutable priority queue
  *
+ * Since the cheapest path would obviously be always walking, we ask the user the maximum time he wants to spend walking
  *
  * @param startNode - the beginning Node of the path
  * @param endNode - the end Node of the path
+ * @param walk_time - maximum allowed distance
  *
  * @return Node * - the final Node of the path, so we can walk it back to get the best path
  */
 template<class T>
 Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
-		double walk_distance) {
+		double walk_time) {
 
 //initial setup to compare by distance
 	Node<T>::sortByDistance = false;
@@ -1122,6 +1251,7 @@ Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
 		(*it)->setNumTransbords(INT_MAX);
 		(*it)->setLastConnection("NOT");
 		(*it)->setPrice(DBL_MAX);
+		(*it)->setWalkedTime(0);
 	}
 
 	startNode->setPrice(0);
@@ -1146,15 +1276,33 @@ Node<T> * Graph<T>::dijkstra_queue_PRICE(Node<T> * startNode, Node<T> * endNode,
 			old_price = w->getPrice();
 			new_price = v->getPrice();
 
+			double time_walked = v->getWalkedTime();
+
+
 			if (v->getLastConnection() != it->getEdgeConnection())
 				new_price += it->getPriceWeight();
+
+			if (it->getType() == WALK)
+				time_walked += it->getWeight();
+
+			if (time_walked > walk_time)
+				continue;
 
 			if (old_price > new_price) {
 
 				/*updating the distance
 				 * not important for the queue since its taking the price as the operator
+				 * also checking if he changed vehicles
 				 */
-				w->setDistance(v->getDistance() + it->getWeight());
+				double new_distance = v->getDistance() + it->getWeight();
+				if (v->getLastTypeConnection() != it->getType()
+						&& v->getLastTypeConnection() != WALK
+						&& it->getType() != WALK) {
+					new_distance += v->getTransbordTime();
+				}
+				w->setDistance(new_distance);
+
+				w->setWalkedTime(time_walked);
 
 				w->setPrice(new_price);
 				w->setLastNode(v);
@@ -1226,19 +1374,20 @@ vector<Node<T>*> Graph<T>::getDetailedPath(Node<T> * dest) const {
  * @param invertedPath - a vector with the Nodes of the path, but reversed
  */
 template<class T>
-void Graph<T>::presentPath(vector<Node<T>*> invertedPath){
+void Graph<T>::presentPath(vector<Node<T>*> invertedPath) {
 
 	double total_distance = invertedPath.at(0)->getDistance();
 	double total_price = invertedPath.at(0)->getPrice();
 
 	if (invertedPath.size() == 1) {
-		cout << "It is impossible to travel to " << invertedPath.at(0)->getInfo() << " with those constrains!\n";
+		cout << "It is impossible to travel to "
+				<< invertedPath.at(0)->getInfo() << " with those constrains!\n";
 	}
 
 	string previousConnection = "";
 	string currentConnection;
 
-	for(int i = invertedPath.size()-1; i >= 0; i--){
+	for (int i = invertedPath.size() - 1; i >= 0; i--) {
 
 		currentConnection = invertedPath.at(i)->getLastConnection();
 
@@ -1288,12 +1437,4 @@ void Graph<T>::presentPath(vector<Node<T>*> invertedPath){
 }
 
 #endif /* GRAPH_H_ */
-
-
-
-
-
-
-
-
 

@@ -21,6 +21,7 @@ int main() {
 
 	loadNodes(grafo);
 	loadEdges(grafo);
+	grafo.findInterfaces();
 
 	menu(grafo);
 
