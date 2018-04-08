@@ -125,20 +125,21 @@ static void makeChoice(Graph<string> &g) {
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
 
 	vector<Node<string>*> invertedPath = g.getDetailedPath(lastNode);
+
 	g.presentPath(invertedPath);
 
 	vector<string> t = g.getPath(lastNode);
 
 	presentPath(t);
 
-	cout << endl << endl << "Now with A Star:\n";
-
-	g.A_Star(startNode, endNode);
-	invertedPath = g.getDetailedPath(lastNode);
-	g.presentPath(invertedPath);
-	t = g.getPath(lastNode);
-
-	presentPath(t);
+//	cout << endl << endl << "Now with A Star:\n";
+//
+//	g.A_Star(startNode, endNode);
+//	invertedPath = g.getDetailedPath(lastNode);
+//	g.presentPath(invertedPath);
+//	t = g.getPath(lastNode);
+//
+//	presentPath(t);
 
 }
 

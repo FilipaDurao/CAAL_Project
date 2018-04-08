@@ -252,7 +252,7 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest) {
 
 	double w = v1->euclidianDistance(v2);
 
-	w *= 100;
+	w *= 700;
 
 	v1->addEdge(v2, w);
 	return true;
@@ -662,7 +662,6 @@ void testPath() {
 
 void compareAlgorithmsMatrixVersion() {
 
-	/*
 	cout << "Testing Dijkstra performance with queue:\n";
 	for (int n = 10; n <= 100; n += 10) {
 		Graph<pair<int, int> > g;
@@ -685,7 +684,6 @@ void compareAlgorithmsMatrixVersion() {
 				<< " average time (micro-seconds)=" << (elapsed / (n * n))
 				<< std::endl;
 	}
-	*/
 
 	cout << "\n\nTesting A Star performance with queue:\n";
 	for (int n = 10; n <= 100; n += 10) {
