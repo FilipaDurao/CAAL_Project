@@ -1379,7 +1379,7 @@ void Graph<T>::presentPath(vector<Node<T>*> invertedPath) {
 	double total_distance = invertedPath.at(0)->getDistance();
 	double total_price = invertedPath.at(0)->getPrice();
 
-	if (invertedPath.size() == 1) {
+	if (invertedPath.at(0)->getLastNode() == NULL) {
 		cout << "It is impossible to travel to "
 				<< invertedPath.at(0)->getInfo() << " with those constrains!\n";
 	}
