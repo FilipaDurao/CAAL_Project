@@ -39,7 +39,7 @@ static int wantToExit() {
 
 		if (!isNumber(opt_s)) {
 			while (!isNumber(opt_s)) {
-				cout << "Local de partida ? ";
+				cout << "\n>> ";
 				cin >> opt_s;
 				cin.ignore(1000, '\n');
 			}
