@@ -1,0 +1,30 @@
+As instruções de compilação e requisitos estão também no relatório.
+
+///////////
+Requisitos
+///////////
+
+- Java
+
+	Uma vez que o programa desenvolvido integra o GraphViewer, fornecido pelos docentes, é necessário que o Java JRE ou JDK esteja instalado no sistema, e/ou que haja uma referência na variável de ambiente PATH para o executável java.
+ 
+- Compilador
+
+	Importa também referir que o projeto foi testado em Linux e em Windows, e compilado com o g++. Tivemos que mudar uma das macros de compilação no GraphViewer fornecido, de linux para __linux__ a fim de conseguir compilar o projeto. Uma vez que estas macros costumam variar de compilador para compilador, é possível que o projeto não seja compilável com outros compiladores, como clang.
+
+- Standard C++
+
+	Por fim, importa referir que durante o desenvolvimento do projeto foi usado a standard C++14, apesar de não usarmos funcionalidades adicionadas nesta standard. Por isso, o projeto também pode ser compilado com a standard C++11.
+
+- Ficheiros de input
+
+	No código do projeto, assume-se que todos os ficheiros de entrada devem estar no mesmo diretório que o executável. Esses ficheiros são:
+	* GraphViewerController.jar
+	* nos.txt
+	* arestas.txt
+
+////////
+Makefile
+////////
+	A fim de compilar o projeto, juntamente com o source code é fornecido um GNU Makefile. O executável resultante terá o nome TripPlanner.
+Também foi definida a regra clean se necessário limpar os ficheiros objeto.
