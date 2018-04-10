@@ -462,6 +462,7 @@ public:
 	Node<T>* getDestiny() const;
 	double getWeight() const;
 	string getType() const;
+	string getLineID() const;
 	string getEdgeConnection() const;
 	double getPriceWeight() const;
 
@@ -534,12 +535,18 @@ Node<T>* Edge<T>::getDestiny() const {
 /**
  * @brief Returns the type of an Edge
  *
- * @return the type of the Edge
+ * @return the type of the Edge ("walk", "edge", "bus")
  */
 template<typename T>
 string Edge<T>::getType() const {
 	return this->type;
 }
+
+template<typename T>
+string Edge<T>::getLineID() const {
+	return this->lineID;
+}
+
 
 /**
  * @brief Returns the weight of the Edge and counts in the multiplier considering which type of transportation is

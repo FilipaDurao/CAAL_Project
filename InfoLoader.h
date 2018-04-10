@@ -1,4 +1,5 @@
 #include "Graph.h"
+#include "GraphViewer/graphviewer.h"
 #include <string>
 
 using namespace std;

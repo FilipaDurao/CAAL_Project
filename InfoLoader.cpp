@@ -10,7 +10,6 @@ using namespace std;
 void loadNodes(Graph<string> & grafo) {
 
 	string line;
-
 	ifstream file("nos.txt");
 
 	if (!file.is_open()) {
@@ -18,6 +17,7 @@ void loadNodes(Graph<string> & grafo) {
 		exit(1);
 	}
 
+	unsigned int id  = 0; // id's for graphviewer nodes
 	while (getline(file, line)) {
 
 		// -> INFO / X / Y
@@ -35,7 +35,6 @@ void loadNodes(Graph<string> & grafo) {
 		sLine >> y;
 
 		grafo.addNode(info, x, y);
-
 	}
 
 	file.close();
@@ -82,10 +81,12 @@ void loadEdges(Graph<string> & grafo) {
 
 		double weight = sqrt(pow((x_f - x_i), 2) + pow((y_f - y_i), 2));
 
-		if(type == BUS)
+		if(type == BUS) {
 			grafo.addBusEdge(id_init,id_end,weight,lineType);
-		else if(type == SUBWAY)
+		}
+		else if(type == SUBWAY) {
 			grafo.addSubwayEdge(id_init, id_end,weight,lineType);
+		}
 		else
 			grafo.addWalkEdge(id_init, id_end, weight, lineType);
 	}

@@ -1,125 +1,85 @@
 #include "menu.h"
 #include <vector>
 
-void menu(Graph<string> &g) {
+/**
+ * @brief Generic function to get input (integers) from the user to navigate through menus
+ *
+ * @param lower_bound The lower option number
+ * @param upper_bound The upper option number
+ * @param out_question The question to display to the user
+ *
+ * @return The value typed by the user
+ */
+static int getMenuOptionInput(int lower_bound, int upper_bound, string out_question) {
+	int opt;
+	bool success = false;
+
+	do {
+		cout << out_question << " ? ";
+		cin >> opt;
+
+		if(cin.fail()) {
+			cin.clear();
+			cin.ignore(1000, '\n');
+			success = false;
+		}
+		else {
+			success = true;
+			cin.ignore(1000, '\n');
+		}
+
+	} while(!success || opt < lower_bound || opt > upper_bound);
+
+	return opt;
+}
+
+void menu(Graph<string>& g) {
 
 	cout << "\n\nWELCOME TO TRIP PLANNER! \n\n";
 	cout << "Press enter to continue...\n";
 	getchar();
+	bool exit = false;
 
-	int toExit = 0;
-
-	while (!toExit) {
-
-		cout << "\n\n\nHere is a list with all the stops available\n\n";
-
-		menuListStation(g);		// display the stations
-		cout << endl;
-
-		makeChoice(g);
-		toExit = wantToExit();
+	while (!exit) {
+		menuStart(g);
+		exit = wantToExit();
 	}
 
 	cout << "\n\nClosing...";
 }
 
-static int wantToExit() {
+void menuStart(Graph<string>& g) {
+	int option;
+	cout << "\n\n";
+	cout << "Do you want to: \n";
+	cout << "[0] - View the full map\n";
+	cout << "[1] - Plan the trip\n\n";
 
-	cout << "\n\n\nDo you want to: ";
-	cout << "\n[0] - Continue using TripPlanner";
-	cout << "\n[1] - Exit";
+	option = getMenuOptionInput(0,1,"Option");
 
-	int opt;
-	string opt_s;
-
-	cout << "\n>> ";
-	cin >> opt_s;
-
-	while (opt < 0 || opt > 1) {
-
-		if (!isNumber(opt_s)) {
-			while (!isNumber(opt_s)) {
-				cout << "\n>> ";
-				cin >> opt_s;
-				cin.ignore(1000, '\n');
-			}
-		}
-
-		opt = stoi(opt_s);
-
-		if (opt > 1 || opt < 0) {
-			opt = -1;
-			opt_s = "Invalid input";
-		}
+	if(option == 0) {
+		showGraphViewer(g);
 	}
-
-	opt = stoi(opt_s);
-
-	return opt;
+	else {
+		menuChooseStations(g);
+	}
 }
 
-static void menuListStation(const Graph<string> &g) {
-	vector<Node<string>*> nodes = g.getNodes();
-
-	for (size_t i = 0; i < nodes.size(); i++)
-		cout << "[" << i << "] - " << nodes.at(i)->getInfo() << endl;
-}
-
-static void makeChoice(Graph<string> &g) {
+void menuChooseStations(Graph<string> &g) {
+	// List all stations
+	showListStation(g);
 
 	// ask for departure station
-	string origin_id_s, dest_id_s;
-	int id_origin = -1, id_dest = -1;
-
-	cout << "Local de partida ? ";
-	cin >> origin_id_s;
-
-	while (id_origin < 0 || id_origin > 36) {
-
-		if (!isNumber(origin_id_s)) {
-			while (!isNumber(origin_id_s)) {
-				cout << "Local de partida ? ";
-				cin >> origin_id_s;
-				cin.ignore(1000, '\n');
-			}
-		}
-
-		id_origin = stoi(origin_id_s);
-
-		if (id_origin > 36 || id_origin < 0) {
-			id_origin = -1;
-			origin_id_s = "Invalid input";
-		}
-	}
-
-	cout << "Local de destino ? ";
-	cin >> dest_id_s;
-
-	while (id_dest < 0 || id_dest > 36) {
-
-		if (!isNumber(dest_id_s)) {
-			while (!isNumber(dest_id_s)) {
-				cout << "Local de destino ? ";
-				cin >> dest_id_s;
-				cin.ignore(1000, '\n');
-			}
-		}
-
-		id_dest = stoi(dest_id_s);
-
-		if (id_dest > 36 || id_dest < 0) {
-			id_dest = -1;
-			dest_id_s = "Invalid input";
-		}
-	}
+	int id_origin, id_dest;
+	cout << endl;
+	id_origin = getMenuOptionInput(0, g.getNumNodes() - 1, "Departure station");
+	id_dest = getMenuOptionInput(0, g.getNumNodes() - 1, "Arrival station");
 
 	// Get node pointers
-	Node<string> *startNode = g.getNodeByID(id_origin), *endNode =
-			g.getNodeByID(id_dest);
+	Node<string> *startNode = g.getNodeByID(id_origin), *endNode = g.getNodeByID(id_dest);
 
 	// ask for criterion
-	cout << endl;
-	pathCriterion criterion = getPathCriterion();
+	pathCriterion criterion = menuPathCriterion();
 
 	// run Dijkstra based on criterion
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
@@ -132,67 +92,27 @@ static void makeChoice(Graph<string> &g) {
 
 	presentPath(t);
 
-//	cout << endl << endl << "Now with A Star:\n";
-//
-//	g.A_Star(startNode, endNode);
-//	invertedPath = g.getDetailedPath(lastNode);
-//	g.presentPath(invertedPath);
-//	t = g.getPath(lastNode);
-//
-//	presentPath(t);
-
+	// Show map
+	invertedPath.push_back(lastNode);
+	buildGraphViewerDeatiledPath(g,invertedPath);
 }
 
-static void presentPath(vector<string> t) {
-	for (size_t i = 0; i < t.size(); i++) {
-		if (i < (t.size() - 1))
-			cout << t.at(i) << "->";
-		else
-			cout << t.at(i);
-	}
-
-}
-
-static pathCriterion getPathCriterion() {
-	cout << "Escolha um criterio\n";
+pathCriterion menuPathCriterion() {
+	cout << "\n\nEscolha um criterio\n";
 	cout << "[0] - Numero de transbordos\n";
 	cout << "[1] - Rotas sem caminhos a pe\n";
 	cout << "[2] - Menor preco\n";
 	cout << "[3] - Menor tempo de viagem\n\n";
 
 	string option_s;
-	int option = -1;
-
-	cout << "Criterio ? ";
-	cin >> option_s;
-
-	while (option < 0 || option > 3) {
-
-		if (!isNumber(option_s)) {
-			cout << "Invalid input" << endl;
-
-			while (!isNumber(option_s)) {
-				option_s.clear();
-				cout << "Criterio ? ";
-				cin >> option_s;
-				cin.ignore(1000, '\n');
-			}
-		}
-
-		option = stoi(option_s);
-
-		if (option > 3 || option < 0) {
-			option = -1;
-			option_s = "Invalid input";
-		}
-	}
+	int option = getMenuOptionInput(0,3, "Option");
 
 	cout << endl << endl;
 
 	return (pathCriterion) option;
 }
 
-static Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode,
+Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 		Node<string> *endNode, pathCriterion criterion) {
 
 	switch (criterion) {
@@ -237,6 +157,107 @@ static Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 	default:
 		return NULL;
 	}
+}
+
+
+// utility functions
+bool wantToExit() {
+
+	cout << "\n\n\nDo you want to: \n";
+	cout << "[0] - Continue using TripPlanner\n";
+	cout << "[1] - Exit\n";
+
+	int opt = getMenuOptionInput(0,1,"Option");
+
+	return (opt == 0 ? false : true);
+}
+
+void showListStation(const Graph<string> &g) {
+	vector<Node<string>*> nodes = g.getNodes();
+
+	for (size_t i = 0; i < nodes.size(); i++)
+		cout << "[" << i << "] - " << nodes.at(i)->getInfo() << endl;
+}
+
+void presentPath(vector<string> t) {
+	for (size_t i = 0; i < t.size(); i++) {
+		if (i < (t.size() - 1))
+			cout << t.at(i) << "->";
+		else
+			cout << t.at(i);
+	}
+}
+
+// Graph viewer
+void showGraphViewer(Graph<string>& g) {
+	GraphViewer *gv = buildGraphViewer(g);
+
+	cout << "Press any key to close window ...\n";
+	getchar();
+	gv->closeWindow();
+}
+
+GraphViewer* buildGraphViewer(Graph<string>& g) {
+	GraphViewer *gv = new GraphViewer(2000,2000,false);
+	gv->createWindow(1000,1000);
+
+	// edge id's
+	int edge_id = 0;
+	// Get the nodes
+	vector<Node<string>*> nodes = g.getNodes();
+	for(size_t i = 0; i < nodes.size(); i++){
+		// add the node to graphViewer
+		Node<string>* n = nodes.at(i);
+		gv->addNode(n->getId(), n->getX()/2, n->getY()/2);
+		gv->setVertexSize(n->getId(), 60);
+		gv->setVertexLabel(n->getId(), n->getInfo());
+
+		// add  the edges (this might not work because not all nodes are defined yet)
+		vector<Edge<string>> edges = nodes.at(i)->getEdges();
+		for(size_t j = 0; j < edges.size(); j++) {
+			if(edges.at(j).getType() != "walk") {
+				gv->addEdge(edge_id, n->getId(), edges.at(j).getDestiny()->getId(), EdgeType::DIRECTED);
+				gv->setEdgeLabel(edge_id, edges.at(j).getLineID());
+				gv->setEdgeThickness(edge_id, 5);
+
+				setGraphViewerEdgeColor(gv, edge_id, edges.at(j).getLineID());
+
+				edge_id++;
+			}
+		}
+
+		gv->rearrange();
+	}
+
+	gv->rearrange();
+	return gv;
+}
+
+GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*> nodes) {
+	// build the whole map
+	GraphViewer *gv = buildGraphViewer(g);
+
+	// Change path nodes color
+	for(unsigned int i = 0; i < nodes.size(); i++) {
+		gv->setVertexColor(nodes.at(i)->getId(), RED);
+	}
+
+	return gv;
+}
+
+void setGraphViewerEdgeColor(GraphViewer *gv, int edge_id, string lineID) {
+	if(lineID == "B")
+		gv->setEdgeColor(edge_id, RED);
+	else if (lineID == "F")
+		gv->setEdgeColor(edge_id, ORANGE);
+	else if (lineID == "D")
+		gv->setEdgeColor(edge_id, YELLOW);
+	else if (lineID == "401")
+		gv->setEdgeColor(edge_id, GREEN);
+	else if (lineID == "204")
+		gv->setEdgeColor(edge_id, CYAN);
+	else if (lineID == "803")
+		gv->setEdgeColor(edge_id, MAGENTA);
 
 }
 
@@ -256,3 +277,6 @@ bool isNumber(string input) {
 
 	return true;
 }
+
+
+
