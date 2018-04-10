@@ -93,7 +93,8 @@ void menuChooseStations(Graph<string> &g) {
 	presentPath(t);
 
 	// Show map
-	invertedPath.push_back(lastNode);
+	invertedPath.push_back(startNode);
+	
 	buildGraphViewerDeatiledPath(g,invertedPath);
 }
 
