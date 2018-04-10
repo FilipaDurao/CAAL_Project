@@ -205,7 +205,7 @@ GraphViewer* buildGraphViewer(Graph<string>& g) {
 	int edge_id = 0;
 	// Get the nodes
 	vector<Node<string>*> nodes = g.getNodes();
-	for(int i = 0; i < nodes.size(); i++){
+	for(size_t i = 0; i < nodes.size(); i++){
 		// add the node to graphViewer
 		Node<string>* n = nodes.at(i);
 		gv->addNode(n->getId(), n->getX()/2, n->getY()/2);
@@ -214,7 +214,7 @@ GraphViewer* buildGraphViewer(Graph<string>& g) {
 
 		// add  the edges (this might not work because not all nodes are defined yet)
 		vector<Edge<string>> edges = nodes.at(i)->getEdges();
-		for(int j = 0; j < edges.size(); j++) {
+		for(size_t j = 0; j < edges.size(); j++) {
 			if(edges.at(j).getType() != "walk") {
 				gv->addEdge(edge_id, n->getId(), edges.at(j).getDestiny()->getId(), EdgeType::DIRECTED);
 				gv->setEdgeLabel(edge_id, edges.at(j).getLineID());
