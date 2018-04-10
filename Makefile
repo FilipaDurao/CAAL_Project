@@ -1,22 +1,27 @@
+CC =  g++ -Wextra -std=c++14
+OUTPUT = TripPlanner
 all: link
 
 link: main connection graphviewer InfoLoader teste menu
-	g++ -o proj main.o connection.o graphviewer.o info.o test.o menu.o
+	$(CC) -o $(OUTPUT) main.o connection.o graphviewer.o info.o test.o menu.o
 
 main:
-	g++ -c Main.cpp -o main.o
+	$(CC) -c Main.cpp -o main.o
 
 connection:
-	g++ -c GraphViewer/connection.cpp -o connection.o
+	$(CC) -c GraphViewer/connection.cpp -o connection.o
 
 graphviewer:
-	g++ -c GraphViewer/graphviewer.cpp -o graphviewer.o
+	$(CC) -c GraphViewer/graphviewer.cpp -o graphviewer.o
 
 InfoLoader:
-	g++ -c InfoLoader.cpp -o info.o
+	$(CC) -c InfoLoader.cpp -o info.o
 
 teste:
-	g++ -c Test.cpp -o test.o
+	$(CC) -c Test.cpp -o test.o
 
 menu:
-	g++ -c menu.cpp -o menu.o
+	$(CC) -c menu.cpp -o menu.o
+
+clean:
+	rm *.o
