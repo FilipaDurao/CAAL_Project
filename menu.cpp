@@ -98,13 +98,6 @@ void menuChooseStations(Graph<string> &g) {
 	presentPath(t);
 
 	// Show map
-	invertedPath.push_back(startNode);
-	
-	GraphViewer * gv = buildGraphViewerDeatiledPath(g,invertedPath);
-
-	cout << "\nPress any key to close window ...\n";
-
-	getchar();
 	if(invertedPath.at(0)->getLastNode() != NULL) {
 		invertedPath.push_back(startNode);
 		GraphViewer * gv = buildGraphViewerDeatiledPath(g,invertedPath);
@@ -116,15 +109,14 @@ void menuChooseStations(Graph<string> &g) {
 		gv->closeWindow();
 	}
 
-	gv->closeWindow();
 }
 
 pathCriterion menuPathCriterion() {
-	cout << "\n\nEscolha um criterio\n";
-	cout << "[0] - Numero de transbordos\n";
-	cout << "[1] - Rotas sem caminhos a pe\n";
-	cout << "[2] - Menor preco\n";
-	cout << "[3] - Menor tempo de viagem\n\n";
+	cout << "\n\nChoose a criterion\n";
+	cout << "[0] - Number of transfers\n";
+	cout << "[1] - Routes without walking\n";
+	cout << "[2] - Lowest price\n";
+	cout << "[3] - Travelling time\n\n";
 
 	string option_s;
 	int option = getMenuOptionInput(0,3, "Option");
@@ -141,11 +133,11 @@ Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 	case TRANSBORDS: {
 		string num_transb_s;
 		int num_transb;
-		cout << "Numero maximo de transbordos ? ";
+		cout << "Maximum number of transfers ? ";
 		cin >> num_transb_s;
 		if (!isNumber(num_transb_s)) {
 			while (!isNumber(num_transb_s)) {
-				cout << "Numero maximo de transbordos ? ";
+				cout << "Maximum number of transfers ? ";
 				cin >> num_transb_s;
 				cin.ignore(1000, '\n');
 			}
@@ -160,11 +152,11 @@ Node<string> * run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 	case PRICE: {
 		double walk_distance;
 		string walk_d_s;
-		cout << "Distancia maxima que pretende andar a pe? ";
+		cout << "Maximum distance you pretend to walk ? ";
 		cin >> walk_d_s;
 		if (!isNumber(walk_d_s)) {
 			while (!isNumber(walk_d_s)) {
-				cout << "Distancia maxima que pretende andar a pe? ? ";
+				cout << "Maximum distance you pretend to walk ? ";
 				cin >> walk_d_s;
 				cin.ignore(1000, '\n');
 			}
@@ -260,7 +252,6 @@ GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*
 	GraphViewer *gv = buildGraphViewer(g);
 
 	// Change path nodes color
-	for(unsigned int i = 0; i < nodes.size(); i++) {
 	for(size_t i = 0; i < nodes.size(); i++) {
 		gv->setVertexColor(nodes.at(i)->getId(), RED);
 	}
