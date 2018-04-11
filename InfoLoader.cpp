@@ -1,3 +1,9 @@
+/**
+ * @brief Contains functions to load data from text files to internal data structures
+ * 
+ * @file InfoLoader.cpp
+ */
+
 #include "InfoLoader.h"
 #include <iostream>
 #include <fstream>

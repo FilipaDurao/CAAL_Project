@@ -1,3 +1,9 @@
+/**
+ * @brief Contains functions to load data from text files to internal data structures
+ * 
+ * @file InfoLoader.h
+ */
+
 #include "Graph.h"
 #include "GraphViewer/graphviewer.h"
 #include <string>

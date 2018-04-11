@@ -1,3 +1,8 @@
+/**
+ * @brief This file contains the functions, representing menus, to interact with the user
+ * 
+ * @file menu.h
+ */
 #ifndef MENU_H_
 #define MENU_H_
 
