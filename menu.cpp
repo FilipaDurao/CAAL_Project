@@ -105,6 +105,16 @@ void menuChooseStations(Graph<string> &g) {
 	cout << "\nPress any key to close window ...\n";
 
 	getchar();
+	if(invertedPath.at(0)->getLastNode() != NULL) {
+		invertedPath.push_back(startNode);
+		GraphViewer * gv = buildGraphViewerDeatiledPath(g,invertedPath);
+		
+		cout << "\nPress any key to close window ...\n";
+		cin.ignore(1000,'\n');
+		getchar();
+		
+		gv->closeWindow();
+	}
 
 	gv->closeWindow();
 }
@@ -251,6 +261,7 @@ GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*
 
 	// Change path nodes color
 	for(unsigned int i = 0; i < nodes.size(); i++) {
+	for(size_t i = 0; i < nodes.size(); i++) {
 		gv->setVertexColor(nodes.at(i)->getId(), RED);
 	}
 
