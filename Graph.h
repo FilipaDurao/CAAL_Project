@@ -622,8 +622,6 @@ public:
 template<typename T>
 void Graph<T>::findInterfaces() {
 
-	int counter = 0;
-
 	for (auto it = this->nodes.begin(); it != this->nodes.end(); it++) {
 
 		set<string> types;
@@ -636,10 +634,6 @@ void Graph<T>::findInterfaces() {
 
 				if (types.size() > 1) {
 					(*it)->setTransbordTime(DEFAULT_TRANSBORD_TIME);
-
-					//TODO ELIMINATE THIS, DEBUG MODE
-					cout << (*it)->getInfo() << " is an interface " << counter++
-							<< " " << i->getType() << endl;
 					types.clear();
 					break;
 				}
@@ -1178,7 +1172,7 @@ Node<T> * Graph<T>::dijkstra_queue_TRANSBORDS(Node<T> * startNode,
 			/*if the method of transport used or the line has changed
 			 * must add another "transbordo"
 			 */
-			if (v->getLastConnection() != it->getEdgeConnection()) {
+			if (v->getLastConnection() != it->getEdgeConnection() && it->getType() != WALK) {
 
 				currentTransbords++;
 			}
@@ -1382,6 +1376,7 @@ void Graph<T>::presentPath(vector<Node<T>*> invertedPath) {
 	if (invertedPath.at(0)->getLastNode() == NULL) {
 		cout << "It is impossible to travel to "
 				<< invertedPath.at(0)->getInfo() << " with those constrains!\n";
+		return;
 	}
 
 	string previousConnection = "";

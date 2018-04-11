@@ -100,7 +100,13 @@ void menuChooseStations(Graph<string> &g) {
 	// Show map
 	invertedPath.push_back(startNode);
 	
-	buildGraphViewerDeatiledPath(g,invertedPath);
+	GraphViewer * gv = buildGraphViewerDeatiledPath(g,invertedPath);
+
+	cout << "\nPress any key to close window ...\n";
+
+	getchar();
+
+	gv->closeWindow();
 }
 
 pathCriterion menuPathCriterion() {
