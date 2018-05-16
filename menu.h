@@ -19,6 +19,21 @@ enum pathCriterion
 };
 
 /**
+* Struct containing the essential info for the string searching algorithmns
+*/
+typedef struct{
+	string stationName; ///< the stop name
+	int index;         ///< the stop index in the Graph's vector
+	int editDistance;  ///< it's current editDistance
+} Guess;
+
+struct cmpGuess{
+	 bool operator()(Guess * a,  Guess * b) const {
+        return a->editDistance < b->editDistance;
+    }
+};
+
+/**
  * @brief The main menu
  *
  * @param g The graph where this menu operates on
@@ -88,5 +103,33 @@ GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*
 void setGraphViewerEdgeColor(GraphViewer *gv, int edge_id, string lineID);
 
 bool isNumber(string input);
+
+
+/**
+* @brief Perfoms kmpMatcher on a vector containing all the names of the stops with a pattern given by the user.
+*		If it only finds one occurrence of the pattern in a single element in the vector, it returns the stop's index in the Graph's stop vector. 
+*		If it finds variable occurences (e.g. "Faculdade" in "Faculdade de Engenharia" and "Faculdade de Economia") it asks the user to pick one.
+*		Otherwise it returns -1;
+* @param stop - the pattern to search
+* @param names - the vector containing all the strings to look for the pattern
+* @return Positive integer in success, -1 otherwise
+*/
+int kmpExactSearch(string stop, vector< Guess * > &names);
+
+/**
+* @brief Utilitary funcion that fill the vector names with all the Graph's stop name and index (by creating a special structure to hold that information)
+* @param g - the graph
+* @param names - the vector to be filled
+*/
+void fillStationsName(Graph<string> &g, vector<Guess *> &names);
+
+/**
+ * @brief Asks the user for a Departure/Arrival Station and tries to find it in the existing ones.
+ * Used kmpMatcher and editDistance to try to find them.
+ * @param names - the vector containing all the stops available
+ * @param initialMessage - the message to be presented -> Departure/Arrival
+ * @return On success, the index of the stop on the Graph's stops vector, -1 otherwise
+ */
+int getStringOption(vector<Guess *> &names, string initialMessage);
 
 #endif

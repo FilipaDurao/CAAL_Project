@@ -12,7 +12,6 @@ void computerPrefixFunction(std::string toSearch, int pi[]) {
 		if (toSearch[k] == toSearch[q])
 			k++;
 		pi[q] = k;
-
 	}
 
 	return;
@@ -53,8 +52,6 @@ int editDistance(std::string pattern, std::string text) {
 
 	std::vector<int> cur(m + 1, 0);
 
-	for (int i = 1; i <= m; i++)
-		cur[i] = i;
 	for (int i = 1; i <= m; i++)
 		cur[i] = i;
 	for (int j = 1; j <= n; j++) {
