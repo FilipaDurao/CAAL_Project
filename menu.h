@@ -55,7 +55,9 @@ void menuStart(Graph<string>& g);
 void menuChooseStations(Graph<string> &g);
 
 /**
- * TODO
+ * @brief Menu where the user is asked to choose a station and a Line and receives information whether the line passes or not in the station
+ *
+ * @param g The graph where this menu operates on
  */
 void menuFindLineInStation(Graph<string> &g);
 
