@@ -55,6 +55,11 @@ void menuStart(Graph<string>& g);
 void menuChooseStations(Graph<string> &g);
 
 /**
+ * TODO
+ */
+void menuFindLineInStation(Graph<string> &g);
+
+/**
  * @brief Menu where the user is asked for a criterion for trip planning
  */
 pathCriterion menuPathCriterion();
