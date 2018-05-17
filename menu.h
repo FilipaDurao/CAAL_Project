@@ -18,6 +18,8 @@ enum pathCriterion
 	DISTANCE = 3
 };
 
+const static vector<string> myDictionary = {"a", "o", "as", "os", "de", "da", "do"};
+
 /**
 * Struct containing the essential info for the string searching algorithmns
 */

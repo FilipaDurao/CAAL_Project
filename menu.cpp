@@ -6,6 +6,7 @@
 #include "menu.h"
 #include <vector>
 #include "stringSearch.h"
+#include <cmath>
 
 /**
  * @brief Generic function to get input (integers) from the user to navigate through menus
@@ -78,6 +79,41 @@ void fillStationsName(Graph<string> &g, vector<Guess *> &names)
 	}
 }
 
+int getUserChoice(const set<Guess *, cmpGuess> &guesses)
+{
+	int partialSize = guesses.size();
+
+	if (partialSize != 0)
+	{
+
+		//if we only found one, display it
+		if (partialSize == 1)
+		{
+			cout << "Departure Station acknowledge: " << (*guesses.begin())->stationName << "\n";
+			return (*guesses.begin())->index;
+		}
+		else
+		{
+			cout << "We could't find your station. Did you mean:\n";
+			int i = 0;
+			for (auto it = guesses.begin(); it != guesses.end(); it++, i++)
+			{
+
+				cout << "[" << i << "]"
+					 << " - " << (*it)->stationName << endl;
+			}
+
+			int option = getMenuOptionInput(0, i, " -->Select your choice:");
+
+			auto result = next(guesses.begin(), option);
+
+			return (*result)->index;
+		}
+	}
+
+	return -1;
+}
+
 void menuStart(Graph<string> &g)
 {
 	int option;
@@ -100,8 +136,7 @@ void menuStart(Graph<string> &g)
 
 int kmpExactSearch(string stop, vector<Guess *> &names)
 {
-
-	vector<Guess *> partialGuesses;
+	set<Guess *, cmpGuess> partialGuesses;
 
 	//Trying to find it exactly, or at least partially in a stop
 	for (Guess *g : names)
@@ -111,45 +146,53 @@ int kmpExactSearch(string stop, vector<Guess *> &names)
 
 		if (result != 0)
 		{
-			partialGuesses.push_back(g);
+			partialGuesses.insert(g);
 		}
 	}
 
-	int partialSize = partialGuesses.size();
+	return getUserChoice(partialGuesses);
+}
 
-	if (partialSize != 0)
+void removeWordsFromDictionary(vector<string> &tokens)
+{
+
+	for (string token : myDictionary)
 	{
 
-		//if we only found one, display it
-		if (partialSize == 1)
+		auto it = find(tokens.begin(), tokens.end(), token);
+
+		if (it != tokens.end())
+			tokens.erase(it);
+	}
+}
+
+int tokenizeAndSearch(vector<Guess *> &names, string stop)
+{
+	set<Guess *, cmpGuess> possibleGuesses;
+
+	int maxEditDistance = stop.length() * 0.70;
+
+	for (Guess *g : names)
+	{
+
+		vector<string> tokens = tokenize(g->stationName);
+
+		removeWordsFromDictionary(tokens);
+
+		for (string s : tokens)
 		{
+			int sizeDiff = stop.length() - s.length();
 
-			cout << "Departure Station acknowledge: " << partialGuesses.at(0)->stationName << "\n";
-			return partialGuesses.at(0)->index;
-		}
-		else
-		{
-			cout << "We found that name in several stops. Which one of these do you mean: \n";
-
-			for (int i = 0; i < partialSize; i++)
-			{
-
-				cout << "[" << i << "]"
-					 << " - " << partialGuesses.at(i)->stationName << endl;
-			}
-
-			int option = getMenuOptionInput(0, partialSize - 1, " -->Select your choice:");
-
-			return partialGuesses.at(option)->index;
+			if (editDistance(stop, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
+				possibleGuesses.insert(g);
 		}
 	}
 
-	return -1;
+	return getUserChoice(possibleGuesses);
 }
 
 int getStringOption(vector<Guess *> &names, string initialMessage)
 {
-
 	set<Guess *, cmpGuess> guessAttempts;
 
 	string stop;
@@ -157,6 +200,8 @@ int getStringOption(vector<Guess *> &names, string initialMessage)
 	cout << initialMessage << ": ";
 
 	getline(cin, stop);
+
+	int maxDiff = stop.length() * 0.60;
 
 	//Exact Search
 	int index = kmpExactSearch(stop, names);
@@ -168,36 +213,18 @@ int getStringOption(vector<Guess *> &names, string initialMessage)
 	for (Guess *g : names)
 	{
 		g->editDistance = editDistance(stop, g->stationName);
-		guessAttempts.insert(g);
+		if (g->editDistance <= maxDiff){ 
+			guessAttempts.insert(g);
+		}
 	}
 
-	auto it = guessAttempts.begin();
-
-	int maxDiff = stop.length() * 0.70;
-
-	if ((*it)->editDistance > maxDiff)
+	//If we couldn't find it using the normal, try to tokenize it
+	if (guessAttempts.empty())
 	{
-		cout << "We couldn't find any stop with a similar name. Try Again!\n";
-		return -1;
+		return tokenizeAndSearch(names, stop);
 	}
 
-	int i = 0;
-
-	cout << "We could't find your station. Did you mean:\n";
-
-	for (; i < 3 && it != guessAttempts.end(); i++, it++)
-	{
-		if ((*it)->editDistance > maxDiff)
-			break;
-		cout << "[" << i << "]"
-			 << " - " << (*it)->stationName << endl;
-	}
-
-	int option = getMenuOptionInput(0, i, " -->Select your choice:");
-
-	auto result = next(guessAttempts.begin(), option);
-
-	return (*result)->index;
+	return getUserChoice(guessAttempts);
 }
 
 void menuChooseStations(Graph<string> &g)

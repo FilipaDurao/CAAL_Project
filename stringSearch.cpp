@@ -1,5 +1,6 @@
 #include "stringSearch.h"
 #include <vector>
+#include <sstream>
 
 void computerPrefixFunction(std::string toSearch, int pi[]) {
 	int m = toSearch.length();
@@ -69,4 +70,14 @@ int editDistance(std::string pattern, std::string text) {
 	}
 	return cur[m];
 
+}
+
+std::vector<std::string> tokenize(const std::string &s){
+	std::vector<std::string> result;
+	std::stringstream ss(s);
+	std::string item;
+	while(std::getline(ss, item, ' '))
+		result.push_back(item);
+
+	return result;
 }
