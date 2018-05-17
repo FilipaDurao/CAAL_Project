@@ -58,7 +58,7 @@ void menu(Graph<string> &g)
 		exit = wantToExit();
 	}
 
-	cout << "\n\nClosing...";
+	cout << "\n\nClosing...\n";
 }
 
 void fillStationsName(Graph<string> &g, vector<Guess *> &names)
@@ -120,17 +120,19 @@ void menuStart(Graph<string> &g)
 	cout << "\n\n";
 	cout << "Do you want to: \n";
 	cout << "[0] - View the full map\n";
-	cout << "[1] - Plan the trip\n\n";
+	cout << "[1] - Plan the trip\n";
+	cout << "[2] - View information of a stop\n\n";
 
-	option = getMenuOptionInput(0, 1, "Option ? ");
+	option = getMenuOptionInput(0, 2, "Option ? ");
 
-	if (option == 0)
-	{
+	if (option == 0){
 		showGraphViewer(g);
 	}
-	else
-	{
+	else if(option == 1){
 		menuChooseStations(g);
+	}
+	else{
+		menuFindLineInStation(g);
 	}
 }
 
@@ -225,6 +227,43 @@ int getStringOption(vector<Guess *> &names, string initialMessage)
 	}
 
 	return getUserChoice(guessAttempts);
+}
+
+void menuFindLineInStation(Graph<string> &g){
+
+	vector<Guess *> stationsName;
+
+	fillStationsName(g, stationsName);
+
+	// ask for departure station
+	int id_origin;
+	string id_line;
+
+	do{
+		id_origin = getStringOption(stationsName, "\nDeparture Station");
+	} while (id_origin == -1);
+
+	cout << "\nLine? ";
+	getline(cin, id_line);
+
+	Node<string> *node = g.getNodeByID(id_origin);
+	vector<Edge<string>> edgesOfNode = node->getEdges();
+	bool passes = false;
+
+	for(unsigned int i = 0; i < edgesOfNode.size(); i++){
+		if(edgesOfNode.at(i).getLineID() == id_line){
+			passes = true;
+			break;
+		}
+	}
+
+	if(passes){
+		cout << "The line " << id_line << " passes in this station";
+	}
+	else{
+		cout << "The line " << id_line << " doesn't pass in this station";
+	}
+
 }
 
 void menuChooseStations(Graph<string> &g)
