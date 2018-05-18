@@ -574,7 +574,7 @@ private:
 	map<string, set<T>> listStationsByLine;
 public:
 	Graph();
-	
+
 	virtual ~Graph();
 
 	void addNode(T nodeData, int x, int y);
@@ -726,6 +726,14 @@ vector<Node<T> *> Graph<T>::getNodes() const {
 	return this->nodes;
 }
 
+/**
+ * @brief This function fills a container with all stations for each line
+ * 
+ * @tparam T 
+ * @param lineID
+ * @param sourceNodeID
+ * @param destinyNodeID 
+ */
 template<typename T>
 void Graph<T>::insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID) {
 	// try to find this line on map
