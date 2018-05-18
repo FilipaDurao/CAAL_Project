@@ -46,7 +46,7 @@ int kmpMatcher(std::string text, std::string pattern) {
 	return result;
 }
 
-int editDistance(std::string pattern, std::string text) {
+int editDistance(std::string text, std::string pattern) {
 
 	int m = pattern.length();
 	int n = text.length();
