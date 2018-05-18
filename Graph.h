@@ -9,6 +9,7 @@
 #define GRAPH_H_
 
 #include <set>
+#include <map>
 #include <cfloat>
 #include <iostream>
 #include <utility>
@@ -570,7 +571,7 @@ template<typename T>
 class Graph {
 private:
 	vector<Node<T> *> nodes;
-
+	map<string, set<T>> listStationsByLine;
 public:
 	Graph();
 
@@ -582,6 +583,7 @@ public:
 	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
 	vector<Node<T> *> getNodes() const;
 	void findInterfaces();
+	void insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID);
 
 // ---- Edges Types ----
 	void addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
@@ -770,6 +772,25 @@ void Graph<T>::addWalkEdge(unsigned int sourceNodeID,
 
 	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, WALK, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
+}
+
+template<typename T>
+void Graph<T>::insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID) {
+	// try to find this line on map
+	auto it = listStationsByLine.find(lineID);
+	
+	if(it == listStationsByLine.end()) {
+		// this line is still not listed
+		set<T> stationList;
+		stationList.insert(this->nodes.at(sourceNodeID).getInfo());
+		stationList.insert(this->nodes.at(destinyNodeID).getInfo());
+		listStationsByLine.insert(pair<string, set<T>>(lineID, stationList));
+	} else {
+		// there's already a map entry for this line
+		// update map
+		it->second.insert(this->nodes.at(sourceNodeID).getInfo());
+		it->second.insert(this->nodes.at(destinyNodeID).getInfo());
+	}
 }
 
 /*
