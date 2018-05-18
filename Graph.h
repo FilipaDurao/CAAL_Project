@@ -571,10 +571,10 @@ template<typename T>
 class Graph {
 private:
 	vector<Node<T> *> nodes;
-	map<string, set<T>> listStationsByLine;
+	
 public:
 	Graph();
-
+	map<string, set<T>> listStationsByLine;
 	virtual ~Graph();
 
 	void addNode(T nodeData, int x, int y);
@@ -726,6 +726,25 @@ vector<Node<T> *> Graph<T>::getNodes() const {
 	return this->nodes;
 }
 
+template<typename T>
+void Graph<T>::insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID) {
+	// try to find this line on map
+	auto it = listStationsByLine.find(lineID);
+	
+	if(it == listStationsByLine.end()) {
+		// this line is still not listed
+		set<T> stationList;
+		stationList.insert(this->nodes.at(sourceNodeID)->getInfo());
+		stationList.insert(this->nodes.at(destinyNodeID)->getInfo());
+		listStationsByLine.insert(pair<string, set<T>>(lineID, stationList));
+	} else {
+		// there's already a map entry for this line
+		// update map
+		it->second.insert(this->nodes.at(sourceNodeID)->getInfo());
+		it->second.insert(this->nodes.at(destinyNodeID)->getInfo());
+	}
+}
+
 /**
  * @brief Creates an BusEdge and adds it to a certain existing Node
  *
@@ -735,11 +754,12 @@ vector<Node<T> *> Graph<T>::getNodes() const {
  * @param lineID - the ID of the bus line
  */
 template<typename T>
-void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
-		double weight, string lineID) {
+void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight, string lineID) {
+	
 	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, BUS, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
 
+	insertStation(lineID, sourceNodeID, destinyNodeID);
 }
 
 /**
@@ -751,11 +771,12 @@ void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
  * @param lineID - the ID of the subway line
  */
 template<typename T>
-void Graph<T>::addSubwayEdge(unsigned int sourceNodeID,
-		unsigned int destinyNodeID, double weight, string lineID) {
+void Graph<T>::addSubwayEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight, string lineID) {
+	
 	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, SUBWAY, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
-
+	
+	insertStation(lineID, sourceNodeID, destinyNodeID);
 }
 
 /**
@@ -772,25 +793,6 @@ void Graph<T>::addWalkEdge(unsigned int sourceNodeID,
 
 	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, WALK, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
-}
-
-template<typename T>
-void Graph<T>::insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID) {
-	// try to find this line on map
-	auto it = listStationsByLine.find(lineID);
-	
-	if(it == listStationsByLine.end()) {
-		// this line is still not listed
-		set<T> stationList;
-		stationList.insert(this->nodes.at(sourceNodeID).getInfo());
-		stationList.insert(this->nodes.at(destinyNodeID).getInfo());
-		listStationsByLine.insert(pair<string, set<T>>(lineID, stationList));
-	} else {
-		// there's already a map entry for this line
-		// update map
-		it->second.insert(this->nodes.at(sourceNodeID).getInfo());
-		it->second.insert(this->nodes.at(destinyNodeID).getInfo());
-	}
 }
 
 /*
