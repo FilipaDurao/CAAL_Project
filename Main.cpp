@@ -23,6 +23,8 @@ int main() {
 	loadNodes(grafo);
 	loadEdges(grafo);
 	grafo.findInterfaces();
+	/*
+	the attribute was public
 	map<string, set<string>> test = grafo.listStationsByLine;
 	
 	for(auto itLines = test.begin(); itLines != test.end(); itLines++) {
@@ -31,7 +33,7 @@ int main() {
 			cout << *itStations << endl;
 		}
 		cout << endl << endl;
-	}
+	}*/
 
 	menu(grafo);
 }

@@ -571,10 +571,10 @@ template<typename T>
 class Graph {
 private:
 	vector<Node<T> *> nodes;
-	
+	map<string, set<T>> listStationsByLine;
 public:
 	Graph();
-	map<string, set<T>> listStationsByLine;
+	
 	virtual ~Graph();
 
 	void addNode(T nodeData, int x, int y);
