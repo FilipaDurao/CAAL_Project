@@ -175,7 +175,7 @@ unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
 	cout << initialMessage << ": ";
 	getline(cin, stationInput);
 
-	// containers init
+	// containers initialization
 	vector<Node<string> *> stations = g.getNodes();
 	vector<Node<string> *> matchedStations;
 
@@ -189,9 +189,9 @@ unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
 	}
 
 	// call getUserChoice here
-	int userChoice = getUserChoice(matchedStations);
+	int userChoice;
 
-	if(userChoice != -1)
+	if((userChoice = getUserChoice(matchedStations)) != -1)
 		return userChoice; // user could pick a station
 
 	// assuming match string failed, try aproximate search
@@ -209,17 +209,19 @@ unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
 			matchedStations.push_back(station);
 	}
 
+	if((userChoice = getUserChoice(matchedStations)) != -1)
+		return userChoice; // user could pick a station
+
 	/**
 	 * Token Search
 	 */
 
 	//If we couldn't find it using the normal, try to tokenize it
-	/*
-	if (guessAttempts.empty())
-	{
-		return tokenizeAndSearch(names, stop);
-	}*/
-
+	matchedStations.clear();
+	for(Node<string>* station : stations) {
+		if(tokenizeAndSearch(station->getInfo(), stationInput) == 0)
+			matchedStations.push_back(station);
+	}
 	return getUserChoice(matchedStations);
 }
 
@@ -350,44 +352,6 @@ void presentPath(vector<string> t)
 	}
 }
 
-/*
-void removeWordsFromDictionary(vector<string> &tokens)
-{
-
-	for (string token : myDictionary)
-	{
-
-		auto it = find(tokens.begin(), tokens.end(), token);
-
-		if (it != tokens.end())
-			tokens.erase(it);
-	}
-}
-
-int tokenizeAndSearch(vector<Guess *> &names, string stop)
-{
-	set<Guess *, cmpGuess> possibleGuesses;
-
-	int maxEditDistance = stop.length() * 0.70;
-
-	for (Guess *g : names)
-	{
-
-		vector<string> tokens = tokenize(g->stationName);
-
-		removeWordsFromDictionary(tokens);
-
-		for (string s : tokens)
-		{
-			int sizeDiff = stop.length() - s.length();
-
-			if (editDistance(stop, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
-				possibleGuesses.insert(g);
-		}
-	}
-
-	return getUserChoice(possibleGuesses);
-}*/
 /*
 	+-----------------------+
 	|                       |
