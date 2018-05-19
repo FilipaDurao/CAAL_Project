@@ -2,6 +2,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 
 const static std::vector<std::string> myDictionary = {"a", "o", "as", "os", "de", "da", "do"};
 
@@ -13,7 +14,7 @@ void computerPrefixFunction(std::string toSearch, int pi[]) {
 	for (int q = 1; q < m; q++) {
 		while (k > 0 && toSearch[k] != toSearch[q])
 			k = pi[k - 1];
-		if (toSearch[k] == toSearch[q])
+		if (tolower(toSearch[k]) == tolower(toSearch[q]))
 			k++;
 		pi[q] = k;
 	}
@@ -36,7 +37,7 @@ int kmpMatcher(std::string text, std::string pattern) {
 		while (q > 0 && pattern.at(q) != text.at(i))
 			q = pi[q - 1];
 
-		if (pattern.at(q) == text.at(i))
+		if (tolower(pattern.at(q)) == tolower(text.at(i)))
 			q++;
 
 		if (q == m) {
@@ -63,7 +64,7 @@ int editDistance(std::string text, std::string pattern) {
 		cur[0] = j;
 		for (int i = 1; i <= m; i++) {
 			int temp = cur[i];
-			if (pattern.at(i - 1) == text.at(j - 1))
+			if (tolower(pattern.at(i - 1)) == tolower(text.at(j - 1)))
 				cur[i] = pre;
 			else
 				cur[i] = std::min(pre + 1,
