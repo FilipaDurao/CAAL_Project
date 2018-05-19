@@ -8,6 +8,14 @@
 #include "stringSearch.h"
 #include <cmath>
 
+/*
+	+-----------------------+
+	|                       |
+	|         Menus         |
+	|                       |
+	+-----------------------+
+*/
+
 /**
  * @brief Generic function to get input (integers) from the user to navigate through menus
  *
@@ -55,63 +63,10 @@ void menu(Graph<string> &g)
 	while (!exit)
 	{
 		menuStart(g);
-		exit = wantToExit();
+		exit = menuWantToExit();
 	}
 
 	cout << "\n\nClosing...\n";
-}
-
-void fillStationsName(Graph<string> &g, vector<Guess *> &names)
-{
-
-	vector<Node<string> *> nodes = g.getNodes();
-
-	for (size_t i = 0; i < nodes.size(); i++)
-	{
-
-		Guess *newGuess = new Guess();
-
-		newGuess->stationName = nodes.at(i)->getInfo();
-		newGuess->index = i;
-		newGuess->editDistance = -1;
-
-		names.push_back(newGuess);
-	}
-}
-
-int getUserChoice(const set<Guess *, cmpGuess> &guesses)
-{
-	int partialSize = guesses.size();
-
-	if (partialSize != 0)
-	{
-
-		//if we only found one, display it
-		if (partialSize == 1)
-		{
-			cout << "Departure Station acknowledge: " << (*guesses.begin())->stationName << "\n";
-			return (*guesses.begin())->index;
-		}
-		else
-		{
-			cout << "We could't find your station. Did you mean:\n";
-			int i = 0;
-			for (auto it = guesses.begin(); it != guesses.end(); it++, i++)
-			{
-
-				cout << "[" << i << "]"
-					 << " - " << (*it)->stationName << endl;
-			}
-
-			int option = getMenuOptionInput(0, i, " -->Select your choice:");
-
-			auto result = next(guesses.begin(), option);
-
-			return (*result)->index;
-		}
-	}
-
-	return -1;
 }
 
 void menuStart(Graph<string> &g)
@@ -129,181 +84,48 @@ void menuStart(Graph<string> &g)
 		showGraphViewer(g);
 	}
 	else if(option == 1){
-		menuChooseStations(g);
+		menuTripPlanning(g);
 	}
 	else{
 		menuFindLineInStation(g);
 	}
+
 }
 
-int kmpExactSearch(string stop, vector<Guess *> &names)
+void menuTripPlanning(Graph<string> &g)
 {
-	set<Guess *, cmpGuess> partialGuesses;
-
-	//Trying to find it exactly, or at least partially in a stop
-	for (Guess *g : names)
-	{
-
-		int result = kmpMatcher(g->stationName, stop);
-
-		if (result != 0)
-		{
-			partialGuesses.insert(g);
-		}
-	}
-
-	return getUserChoice(partialGuesses);
-}
-
-void removeWordsFromDictionary(vector<string> &tokens)
-{
-
-	for (string token : myDictionary)
-	{
-
-		auto it = find(tokens.begin(), tokens.end(), token);
-
-		if (it != tokens.end())
-			tokens.erase(it);
-	}
-}
-
-int tokenizeAndSearch(vector<Guess *> &names, string stop)
-{
-	set<Guess *, cmpGuess> possibleGuesses;
-
-	int maxEditDistance = stop.length() * 0.70;
-
-	for (Guess *g : names)
-	{
-
-		vector<string> tokens = tokenize(g->stationName);
-
-		removeWordsFromDictionary(tokens);
-
-		for (string s : tokens)
-		{
-			int sizeDiff = stop.length() - s.length();
-
-			if (editDistance(stop, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
-				possibleGuesses.insert(g);
-		}
-	}
-
-	return getUserChoice(possibleGuesses);
-}
-
-int getStringOption(vector<Guess *> &names, string initialMessage)
-{
-	set<Guess *, cmpGuess> guessAttempts;
-
-	string stop;
-
-	cout << initialMessage << ": ";
-
-	getline(cin, stop);
-
-	int maxDiff = stop.length() * 0.60;
-
-	//Exact Search
-	int index = kmpExactSearch(stop, names);
-
-	if (index != -1)
-		return index;
-
-	//Approximante Search
-	for (Guess *g : names)
-	{
-		g->editDistance = editDistance(stop, g->stationName);
-		if (g->editDistance <= maxDiff){ 
-			guessAttempts.insert(g);
-		}
-	}
-
-	//If we couldn't find it using the normal, try to tokenize it
-	if (guessAttempts.empty())
-	{
-		return tokenizeAndSearch(names, stop);
-	}
-
-	return getUserChoice(guessAttempts);
-}
-
-void menuFindLineInStation(Graph<string> &g){
-
-	vector<Guess *> stationsName;
-
-	fillStationsName(g, stationsName);
-
-	// ask for departure station
-	int id_origin;
-	string id_line;
-
-	do{
-		id_origin = getStringOption(stationsName, "\nDeparture Station");
-	} while (id_origin == -1);
-
-	cout << "\nLine? ";
-	getline(cin, id_line);
-
-	Node<string> *node = g.getNodeByID(id_origin);
-	vector<Edge<string>> edgesOfNode = node->getEdges();
-	bool passes = false;
-
-	for(unsigned int i = 0; i < edgesOfNode.size(); i++){
-		if(edgesOfNode.at(i).getLineID() == id_line){
-			passes = true;
-			break;
-		}
-	}
-
-	if(passes){
-		cout << "The line " << id_line << " passes in this station";
-	}
-	else{
-		cout << "The line " << id_line << " doesn't pass in this station";
-	}
-
-}
-
-void menuChooseStations(Graph<string> &g)
-{
-
-	vector<Guess *> stationsName;
-
-	fillStationsName(g, stationsName);
-
 	// ask for departure station
 	int id_origin, id_dest;
 
 	do
 	{
-		id_origin = getStringOption(stationsName, "Departure Station");
+		id_origin = getStationInput(g, "Departure Station");
 	} while (id_origin == -1);
 
 	do
 	{
-		id_dest = getStringOption(stationsName, "Arrival station");
+		id_dest = getStationInput(g, "Arrival station");
 	} while (id_dest == -1);
 
 	// Get node pointers
-	Node<string> *startNode = g.getNodeByID(id_origin), *endNode = g.getNodeByID(id_dest);
+	Node<string> *startNode = g.getNodeByID(id_origin), 
+		*endNode = g.getNodeByID(id_dest);
 
 	// ask for criterion
-	pathCriterion criterion = menuPathCriterion();
+	pathCriterion criterion = getPathCriterion();
 
 	// run Dijkstra based on criterion
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
-
 	vector<Node<string> *> invertedPath = g.getDetailedPath(lastNode);
 
+	// 
 	g.presentPath(invertedPath);
 
 	vector<string> t = g.getPath(lastNode);
 
-	presentPath(t);
+	showShortTripPath(t);
 
-	// Show map
+	// Show map (Graph Viewer)
 	if (invertedPath.at(0)->getLastNode() != NULL)
 	{
 		invertedPath.push_back(startNode);
@@ -315,14 +137,138 @@ void menuChooseStations(Graph<string> &g)
 
 		gv->closeWindow();
 	}
-
-	for (Guess *g : stationsName)
-		free(g);
-
-	stationsName.clear();
 }
 
-pathCriterion menuPathCriterion()
+void menuFindLineInStation(Graph<string> &g){
+
+	int stationID;
+	string lineID;
+
+	// ask for station's name
+	do{
+		stationID = getStationInput(g, "Station");
+	} while (stationID == -1);
+
+	// ask for line's name
+	cout << "\nLine? ";
+	getline(cin, lineID);
+
+	// find the station in specified line
+	map<string, set<unsigned int>> stationsByLine = g.getStationsByLine();
+	auto lineIt = stationsByLine.find(lineID);
+
+	if(lineIt == stationsByLine.end()) {
+		cout << "The line " << lineID << " does not exist!\n";
+	} else {
+		// found line, get the iterator for stations of that line
+		bool found = false;
+		for(auto stationIt = lineIt->second.begin(); stationIt != lineIt->second.end() && !found; stationIt++) {
+			if(*stationIt == (unsigned int)stationID) // at this point, stationID is > 0
+				found = true;
+		}
+
+		// display message
+		if(found){
+		cout << "The line " << lineID << " passes in this station";
+		}
+		else{
+			cout << "The line " << lineID << " doesn't pass in this station";
+		}
+	}
+}
+
+bool menuWantToExit()
+{
+
+	cout << "\n\n\nDo you want to: \n";
+	cout << "[0] - Continue using TripPlanner\n";
+	cout << "[1] - Exit\n";
+
+	int opt = getMenuOptionInput(0, 1, "Option ? ");
+
+	return (opt == 0 ? false : true);
+}
+
+int getStationInput(Graph<string> &g, string initialMessage) {
+	// get user station input
+	string stationInput;
+	cout << initialMessage << ": ";
+	getline(cin, stationInput);
+
+	// containers initialization
+	vector<Node<string> *> stations = g.getNodes();
+	vector<Node<string> *> matchedStations;
+
+	/**
+	 * Exact Search
+	 */
+
+	for(Node<string>* station : stations) {
+		if(kmpMatcher(station->getInfo(), stationInput))
+			matchedStations.push_back(station);
+	}
+
+	// call getStationUserChoice here
+	int userChoice;
+
+	if((userChoice = getStationUserChoice(matchedStations)) != -1)
+		return userChoice; // user could pick a station
+
+	// assuming match string failed, try aproximate search
+
+	/**
+	 * Approximate Search
+	 */
+
+	// set the maximum distance between map stations name and user input
+	int maxDiff = stationInput.length() * 0.60;
+
+	matchedStations.clear();
+	for(Node<string>* station : stations) {
+		if(editDistance(station->getInfo(), stationInput) <= maxDiff)
+			matchedStations.push_back(station);
+	}
+
+	if((userChoice = getStationUserChoice(matchedStations)) != -1)
+		return userChoice; // user could pick a station
+
+	/**
+	 * Token Search
+	 */
+
+	//If we couldn't find it using the normal, try to tokenize it
+	matchedStations.clear();
+	for(Node<string>* station : stations) {
+		if(tokenizeAndSearch(station->getInfo(), stationInput) == 0)
+			matchedStations.push_back(station);
+	}
+	return getStationUserChoice(matchedStations);
+}
+
+int getStationUserChoice(const vector<Node<string> *> &matchedStations)
+{
+
+	if(matchedStations.size() == 1) {
+		cout << "Departure Station acknowledge: " << matchedStations.front()->getInfo() << "\n";
+		return matchedStations.front()->getId(); 
+	}
+	else if(matchedStations.size() > 1) {
+		cout << "We could't find your station. Did you mean:\n";
+		int i = 0;
+		for (auto it = matchedStations.begin(); it != matchedStations.end(); it++, i++){
+				cout << "[" << i << "]"
+					 << " - " << (*it)->getInfo() << endl;
+		}
+
+		int option = getMenuOptionInput(0, i, " -->Select your choice:");
+
+		return (*(matchedStations.begin() + option))->getId();
+	}
+	else 
+		return -1;
+}
+
+pathCriterion getPathCriterion()
 {
 	cout << "\n\nChoose a criterion\n";
 	cout << "[0] - Number of transfers\n";
@@ -338,6 +284,38 @@ pathCriterion menuPathCriterion()
 
 	return (pathCriterion)option;
 }
+
+
+void showShortTripPath(vector<string> t)
+{
+	for (size_t i = 0; i < t.size(); i++)
+	{
+		if (i < (t.size() - 1))
+			cout << t.at(i) << "->";
+		else
+			cout << t.at(i);
+	}
+}
+
+bool isNumber(string input)
+{
+
+	for (unsigned int i = 0; i < input.size(); i++)
+	{
+		if (input[i] < '0' || input[i] > '9')
+			return false;
+	}
+
+	return true;
+}
+
+/*
+	+-----------------------+
+	|                       |
+	|        Dijkstra       |
+	|                       |
+	+-----------------------+
+*/
 
 Node<string> *run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 						   Node<string> *endNode, pathCriterion criterion)
@@ -394,39 +372,14 @@ Node<string> *run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 	}
 }
 
-// utility functions
-bool wantToExit()
-{
+/*
+	+-----------------------+
+	|                       |
+	|      Graph Viewer     |
+	|                       |
+	+-----------------------+
+*/
 
-	cout << "\n\n\nDo you want to: \n";
-	cout << "[0] - Continue using TripPlanner\n";
-	cout << "[1] - Exit\n";
-
-	int opt = getMenuOptionInput(0, 1, "Option ? ");
-
-	return (opt == 0 ? false : true);
-}
-
-void showListStation(const Graph<string> &g)
-{
-	vector<Node<string> *> nodes = g.getNodes();
-
-	for (size_t i = 0; i < nodes.size(); i++)
-		cout << "[" << i << "] - " << nodes.at(i)->getInfo() << endl;
-}
-
-void presentPath(vector<string> t)
-{
-	for (size_t i = 0; i < t.size(); i++)
-	{
-		if (i < (t.size() - 1))
-			cout << t.at(i) << "->";
-		else
-			cout << t.at(i);
-	}
-}
-
-// Graph viewer
 void showGraphViewer(Graph<string> &g)
 {
 	GraphViewer *gv = buildGraphViewer(g);
@@ -504,23 +457,4 @@ void setGraphViewerEdgeColor(GraphViewer *gv, int edge_id, string lineID)
 		gv->setEdgeColor(edge_id, CYAN);
 	else if (lineID == "803")
 		gv->setEdgeColor(edge_id, MAGENTA);
-}
-
-/**
- * @param input - any string
- *
- * @brief Checks if the string is a number, with no alphabetic characters
- *
- * @return bool - whether is true or false that the string is a number (true if it is, false otherwise)
- */
-bool isNumber(string input)
-{
-
-	for (unsigned int i = 0; i < input.size(); i++)
-	{
-		if (input[i] < '0' || input[i] > '9')
-			return false;
-	}
-
-	return true;
 }
