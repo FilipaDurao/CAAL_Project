@@ -85,41 +85,41 @@ void menuStart(Graph<string> &g)
 }
 
 void menuFindLineInStation(Graph<string> &g){
-	/*
-	vector<Guess *> stationsName;
 
-	fillStationsName(g, stationsName);
+	int stationID;
+	string lineID;
 
-	// ask for departure station
-	int id_origin;
-	string id_line;
-
+	// ask for station's name
 	do{
-		id_origin = getStringOption(stationsName, "\nDeparture Station");
-	} while (id_origin == -1);
+		stationID = menuGetStationInput(g, "Station");
+	} while (stationID == -1);
 
+	// ask for line's name
 	cout << "\nLine? ";
-	getline(cin, id_line);
+	getline(cin, lineID);
 
-	Node<string> *node = g.getNodeByID(id_origin);
-	vector<Edge<string>> edgesOfNode = node->getEdges();
-	bool passes = false;
+	// find the station in specified line
+	map<string, set<unsigned int>> stationsByLine = g.getStationsByLine();
+	auto lineIt = stationsByLine.find(lineID);
 
-	for(unsigned int i = 0; i < edgesOfNode.size(); i++){
-		if(edgesOfNode.at(i).getLineID() == id_line){
-			passes = true;
-			break;
+	if(lineIt == stationsByLine.end()) {
+		cout << "The line " << lineID << " does not exist!\n";
+	} else {
+		// found line, get the iterator for stations of that line
+		bool found = false;
+		for(auto stationIt = lineIt->second.begin(); stationIt != lineIt->second.end() && !found; stationIt++) {
+			if(*stationIt == (unsigned int)stationID) // at this point, stationID is > 0
+				found = true;
+		}
+
+		// display message
+		if(found){
+		cout << "The line " << lineID << " passes in this station";
+		}
+		else{
+			cout << "The line " << lineID << " doesn't pass in this station";
 		}
 	}
-
-	if(passes){
-		cout << "The line " << id_line << " passes in this station";
-	}
-	else{
-		cout << "The line " << id_line << " doesn't pass in this station";
-	}
-	*/
-
 }
 
 void menuChooseStations(Graph<string> &g)
@@ -178,7 +178,7 @@ unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
 	// containers initialization
 	vector<Node<string> *> stations = g.getNodes();
 	vector<Node<string> *> matchedStations;
-
+	cout << "KMP\n";
 	/**
 	 * Exact Search
 	 */
@@ -199,7 +199,7 @@ unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
 	/**
 	 * Approximate Search
 	 */
-
+	cout << "EDIT DISTANCE\n";
 	// set the maximum distance between map stations name and user input
 	int maxDiff = stationInput.length() * 0.60;
 
@@ -215,7 +215,7 @@ unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
 	/**
 	 * Token Search
 	 */
-
+	cout << "TOKENIZE\n";
 	//If we couldn't find it using the normal, try to tokenize it
 	matchedStations.clear();
 	for(Node<string>* station : stations) {
