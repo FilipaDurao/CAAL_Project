@@ -1,6 +1,9 @@
 #include "stringSearch.h"
 #include <vector>
 #include <sstream>
+#include <algorithm>
+
+const static std::vector<std::string> myDictionary = {"a", "o", "as", "os", "de", "da", "do"};
 
 void computerPrefixFunction(std::string toSearch, int pi[]) {
 	int m = toSearch.length();
@@ -80,4 +83,35 @@ std::vector<std::string> tokenize(const std::string &s){
 		result.push_back(item);
 
 	return result;
+}
+
+int tokenizeAndSearch(std::string stationName, std::string userStationInput)
+{
+	int maxEditDistance = userStationInput.length() * 0.70;
+
+	// tokenize the station name
+	std::vector<std::string> tokens = tokenize(stationName);
+
+	// remove some definite articles, etc.
+	removeWordsFromDictionary(tokens);
+
+	// try to find at least one token from station name, where the user input is close enough
+	for (std::string s : tokens){
+		int sizeDiff = userStationInput.length() - s.length();
+		if (editDistance(userStationInput, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
+			return 0;
+	}
+
+	return -1;
+}
+
+void removeWordsFromDictionary(std::vector<std::string> &tokens){
+
+	for (std::string token : myDictionary)
+	{
+		auto it = std::find(tokens.begin(), tokens.end(), token);
+
+		if (it != tokens.end())
+			tokens.erase(it);
+	}
 }
