@@ -23,17 +23,6 @@ int main() {
 	loadNodes(grafo);
 	loadEdges(grafo);
 	grafo.findInterfaces();
-	/*
-	the attribute was public
-	map<string, set<string>> test = grafo.listStationsByLine;
-	
-	for(auto itLines = test.begin(); itLines != test.end(); itLines++) {
-		cout << "Line " << itLines->first << endl;
-		for(auto itStations = itLines->second.begin(); itStations != itLines->second.end(); itStations++) {
-			cout << *itStations << endl;
-		}
-		cout << endl << endl;
-	}*/
 
 	menu(grafo);
 }

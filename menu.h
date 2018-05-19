@@ -18,23 +18,6 @@ enum pathCriterion
 	DISTANCE = 3
 };
 
-
-
-/**
-* Struct containing the essential info for the string searching algorithmns
-*/
-typedef struct{
-	string stationName; ///< the stop name
-	int index;         ///< the stop index in the Graph's vector
-	int editDistance;  ///< it's current editDistance
-} Guess;
-
-struct cmpGuess{
-	 bool operator()(Guess * a,  Guess * b) const {
-        return a->editDistance < b->editDistance;
-    }
-};
-
 /**
  * @brief The main menu
  *
@@ -57,15 +40,6 @@ void menuStart(Graph<string>& g);
 void menuTripPlanning(Graph<string> &g);
 
 /**
- * @brief Get the Station ID from user input
- * To correctly pick a station, the function uses different string matching algorithms
- * @param g The graph
- * @param initialMessage A message to describe the type of input (e.g. "Enter departure station")
- * @return unsigned int The graph's node id that matches the station user input. If no match is found, returns -1
- */
-unsigned int getStationInput(Graph<string> &g, string initialMessage);
-
-/**
  * @brief Menu where the user is asked to choose a station and a Line and receives information whether the line passes or not in the station
  *
  * @param g The graph where this menu operates on
@@ -73,32 +47,72 @@ unsigned int getStationInput(Graph<string> &g, string initialMessage);
 void menuFindLineInStation(Graph<string> &g);
 
 /**
- * @brief Menu where the user is asked for a criterion for trip planning
- */
-pathCriterion menuPathCriterion();
-
-/**
  * @brief Asks the user if he wants to continue using Trip Planner or exit the program
  *
  * @retval True The user wants to close the program
  * @terval False Continue using the application
  */
-bool wantToExit();
+bool menuWantToExit();
 
 /**
- * @brief For a map, lists all stations
- *
- * @param g The map (graph)
+ * @brief Get the Station ID from user input
+ * To correctly pick a station, the function uses different string matching algorithms
+ * @param g The graph
+ * @param initialMessage A message to describe the type of input (e.g. "Enter departure station")
+ * @return unsigned int The graph's node id that matches the station user input. If no match is found, returns -1
  */
-void showListStation(const Graph<string> &g);
+int getStationInput(Graph<string> &g, string initialMessage);
 
+/**
+ * @brief This function lists stations and asks the user to pick one
+ * 
+ * @param matchedStations A vector of pointers to Nodes (stations)
+ * @return int The node ID of the picked station. If the vector is empty, returns -1
+ */
+int getStationUserChoice(const vector<Node<string> *> &matchedStations);
 
-void presentPath(vector<string> t);
+/**
+ * @brief Menu where the user is asked for a criterion for trip planning
+ */
+pathCriterion getPathCriterion();
+
+/**
+ * @brief 
+ * 
+ * @param input 
+ * @return true 
+ * @return false 
+ */
+bool isNumber(string input);
+
+/**
+ * @brief Displays the trip path in a short way
+ * 
+ * @param t 
+ */
+void showShortTripPath(vector<string> t);
+
+/*
+	+-----------------------+
+	|                       |
+	|        Dijkstra       |
+	|                       |
+	+-----------------------+
+*/
 
 /**
  * @brief Runs the algorithm to find the best trip considering the criterion
  */
 Node<string>* run_Dijkstra(Graph<string>& g, Node<string>* startNode, Node<string>* endNode, pathCriterion criterion);
+
+
+/*
+	+-----------------------+
+	|                       |
+	|      Graph Viewer     |
+	|                       |
+	+-----------------------+
+*/
 
 /**
  * @brief Shows a graphViewer map showing all stations and connections in between
@@ -119,38 +133,5 @@ GraphViewer* buildGraphViewerDeatiledPath(Graph<string>& g, vector<Node<string>*
  * @brief Determines GraphViewer edge's colors based on it's lineID
  */
 void setGraphViewerEdgeColor(GraphViewer *gv, int edge_id, string lineID);
-
-bool isNumber(string input);
-
-
-/**
-* @brief Perfoms kmpMatcher on a vector containing all the names of the stops with a pattern given by the user.
-*		If it only finds one occurrence of the pattern in a single element in the vector, it returns the stop's index in the Graph's stop vector. 
-*		If it finds variable occurences (e.g. "Faculdade" in "Faculdade de Engenharia" and "Faculdade de Economia") it asks the user to pick one.
-*		Otherwise it returns -1;
-* @param stop - the pattern to search
-* @param names - the vector containing all the strings to look for the pattern
-* @return Positive integer in success, -1 otherwise
-*/
-int kmpExactSearch(string stop, vector< Guess * > &names);
-
-/**
-* @brief Utilitary funcion that fill the vector names with all the Graph's stop name and index (by creating a special structure to hold that information)
-* @param g - the graph
-* @param names - the vector to be filled
-*/
-void fillStationsName(Graph<string> &g, vector<Guess *> &names);
-
-/**
- * @brief Asks the user for a Departure/Arrival Station and tries to find it in the existing ones.
- * Used kmpMatcher and editDistance to try to find them.
- * @param names - the vector containing all the stops available
- * @param initialMessage - the message to be presented -> Departure/Arrival
- * @return On success, the index of the stop on the Graph's stops vector, -1 otherwise
- */
-int getStringOption(vector<Guess *> &names, string initialMessage);
-
-int getUserChoice(const vector<Node<string> *> &matchedStations);
-
 
 #endif

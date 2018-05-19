@@ -63,7 +63,7 @@ void menu(Graph<string> &g)
 	while (!exit)
 	{
 		menuStart(g);
-		exit = wantToExit();
+		exit = menuWantToExit();
 	}
 
 	cout << "\n\nClosing...\n";
@@ -112,7 +112,7 @@ void menuTripPlanning(Graph<string> &g)
 		*endNode = g.getNodeByID(id_dest);
 
 	// ask for criterion
-	pathCriterion criterion = menuPathCriterion();
+	pathCriterion criterion = getPathCriterion();
 
 	// run Dijkstra based on criterion
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
@@ -123,7 +123,7 @@ void menuTripPlanning(Graph<string> &g)
 
 	vector<string> t = g.getPath(lastNode);
 
-	presentPath(t);
+	showShortTripPath(t);
 
 	// Show map (Graph Viewer)
 	if (invertedPath.at(0)->getLastNode() != NULL)
@@ -177,9 +177,19 @@ void menuFindLineInStation(Graph<string> &g){
 	}
 }
 
+bool menuWantToExit()
+{
 
+	cout << "\n\n\nDo you want to: \n";
+	cout << "[0] - Continue using TripPlanner\n";
+	cout << "[1] - Exit\n";
 
-unsigned int getStationInput(Graph<string> &g, string initialMessage) {
+	int opt = getMenuOptionInput(0, 1, "Option ? ");
+
+	return (opt == 0 ? false : true);
+}
+
+int getStationInput(Graph<string> &g, string initialMessage) {
 	// get user station input
 	string stationInput;
 	cout << initialMessage << ": ";
@@ -188,7 +198,7 @@ unsigned int getStationInput(Graph<string> &g, string initialMessage) {
 	// containers initialization
 	vector<Node<string> *> stations = g.getNodes();
 	vector<Node<string> *> matchedStations;
-	cout << "KMP\n";
+
 	/**
 	 * Exact Search
 	 */
@@ -198,10 +208,10 @@ unsigned int getStationInput(Graph<string> &g, string initialMessage) {
 			matchedStations.push_back(station);
 	}
 
-	// call getUserChoice here
+	// call getStationUserChoice here
 	int userChoice;
 
-	if((userChoice = getUserChoice(matchedStations)) != -1)
+	if((userChoice = getStationUserChoice(matchedStations)) != -1)
 		return userChoice; // user could pick a station
 
 	// assuming match string failed, try aproximate search
@@ -209,7 +219,7 @@ unsigned int getStationInput(Graph<string> &g, string initialMessage) {
 	/**
 	 * Approximate Search
 	 */
-	cout << "EDIT DISTANCE\n";
+
 	// set the maximum distance between map stations name and user input
 	int maxDiff = stationInput.length() * 0.60;
 
@@ -219,23 +229,23 @@ unsigned int getStationInput(Graph<string> &g, string initialMessage) {
 			matchedStations.push_back(station);
 	}
 
-	if((userChoice = getUserChoice(matchedStations)) != -1)
+	if((userChoice = getStationUserChoice(matchedStations)) != -1)
 		return userChoice; // user could pick a station
 
 	/**
 	 * Token Search
 	 */
-	cout << "TOKENIZE\n";
+
 	//If we couldn't find it using the normal, try to tokenize it
 	matchedStations.clear();
 	for(Node<string>* station : stations) {
 		if(tokenizeAndSearch(station->getInfo(), stationInput) == 0)
 			matchedStations.push_back(station);
 	}
-	return getUserChoice(matchedStations);
+	return getStationUserChoice(matchedStations);
 }
 
-int getUserChoice(const vector<Node<string> *> &matchedStations)
+int getStationUserChoice(const vector<Node<string> *> &matchedStations)
 {
 
 	if(matchedStations.size() == 1) {
@@ -258,7 +268,7 @@ int getUserChoice(const vector<Node<string> *> &matchedStations)
 		return -1;
 }
 
-pathCriterion menuPathCriterion()
+pathCriterion getPathCriterion()
 {
 	cout << "\n\nChoose a criterion\n";
 	cout << "[0] - Number of transfers\n";
@@ -274,6 +284,38 @@ pathCriterion menuPathCriterion()
 
 	return (pathCriterion)option;
 }
+
+
+void showShortTripPath(vector<string> t)
+{
+	for (size_t i = 0; i < t.size(); i++)
+	{
+		if (i < (t.size() - 1))
+			cout << t.at(i) << "->";
+		else
+			cout << t.at(i);
+	}
+}
+
+bool isNumber(string input)
+{
+
+	for (unsigned int i = 0; i < input.size(); i++)
+	{
+		if (input[i] < '0' || input[i] > '9')
+			return false;
+	}
+
+	return true;
+}
+
+/*
+	+-----------------------+
+	|                       |
+	|        Dijkstra       |
+	|                       |
+	+-----------------------+
+*/
 
 Node<string> *run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 						   Node<string> *endNode, pathCriterion criterion)
@@ -327,38 +369,6 @@ Node<string> *run_Dijkstra(Graph<string> &g, Node<string> *startNode,
 
 	default:
 		return NULL;
-	}
-}
-
-// utility functions
-bool wantToExit()
-{
-
-	cout << "\n\n\nDo you want to: \n";
-	cout << "[0] - Continue using TripPlanner\n";
-	cout << "[1] - Exit\n";
-
-	int opt = getMenuOptionInput(0, 1, "Option ? ");
-
-	return (opt == 0 ? false : true);
-}
-
-void showListStation(const Graph<string> &g)
-{
-	vector<Node<string> *> nodes = g.getNodes();
-
-	for (size_t i = 0; i < nodes.size(); i++)
-		cout << "[" << i << "] - " << nodes.at(i)->getInfo() << endl;
-}
-
-void presentPath(vector<string> t)
-{
-	for (size_t i = 0; i < t.size(); i++)
-	{
-		if (i < (t.size() - 1))
-			cout << t.at(i) << "->";
-		else
-			cout << t.at(i);
 	}
 }
 
@@ -447,23 +457,4 @@ void setGraphViewerEdgeColor(GraphViewer *gv, int edge_id, string lineID)
 		gv->setEdgeColor(edge_id, CYAN);
 	else if (lineID == "803")
 		gv->setEdgeColor(edge_id, MAGENTA);
-}
-
-/**
- * @param input - any string
- *
- * @brief Checks if the string is a number, with no alphabetic characters
- *
- * @return bool - whether is true or false that the string is a number (true if it is, false otherwise)
- */
-bool isNumber(string input)
-{
-
-	for (unsigned int i = 0; i < input.size(); i++)
-	{
-		if (input[i] < '0' || input[i] > '9')
-			return false;
-	}
-
-	return true;
 }
