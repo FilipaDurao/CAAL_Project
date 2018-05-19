@@ -54,7 +54,16 @@ void menuStart(Graph<string>& g);
  *
  * @param g The graph where this menu operates on
  */
-void menuChooseStations(Graph<string> &g);
+void menuTripPlanning(Graph<string> &g);
+
+/**
+ * @brief Get the Station ID from user input
+ * To correctly pick a station, the function uses different string matching algorithms
+ * @param g The graph
+ * @param initialMessage A message to describe the type of input (e.g. "Enter departure station")
+ * @return unsigned int The graph's node id that matches the station user input. If no match is found, returns -1
+ */
+unsigned int getStationInput(Graph<string> &g, string initialMessage);
 
 /**
  * @brief Menu where the user is asked to choose a station and a Line and receives information whether the line passes or not in the station
@@ -143,5 +152,5 @@ int getStringOption(vector<Guess *> &names, string initialMessage);
 
 int getUserChoice(const vector<Node<string> *> &matchedStations);
 
-unsigned int menuGetStationInput(Graph<string> &g, string initialMessage);
+
 #endif

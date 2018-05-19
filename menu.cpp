@@ -8,6 +8,14 @@
 #include "stringSearch.h"
 #include <cmath>
 
+/*
+	+-----------------------+
+	|                       |
+	|         Menus         |
+	|                       |
+	+-----------------------+
+*/
+
 /**
  * @brief Generic function to get input (integers) from the user to navigate through menus
  *
@@ -76,7 +84,7 @@ void menuStart(Graph<string> &g)
 		showGraphViewer(g);
 	}
 	else if(option == 1){
-		menuChooseStations(g);
+		menuTripPlanning(g);
 	}
 	else{
 		menuFindLineInStation(g);
@@ -84,57 +92,19 @@ void menuStart(Graph<string> &g)
 
 }
 
-void menuFindLineInStation(Graph<string> &g){
-
-	int stationID;
-	string lineID;
-
-	// ask for station's name
-	do{
-		stationID = menuGetStationInput(g, "Station");
-	} while (stationID == -1);
-
-	// ask for line's name
-	cout << "\nLine? ";
-	getline(cin, lineID);
-
-	// find the station in specified line
-	map<string, set<unsigned int>> stationsByLine = g.getStationsByLine();
-	auto lineIt = stationsByLine.find(lineID);
-
-	if(lineIt == stationsByLine.end()) {
-		cout << "The line " << lineID << " does not exist!\n";
-	} else {
-		// found line, get the iterator for stations of that line
-		bool found = false;
-		for(auto stationIt = lineIt->second.begin(); stationIt != lineIt->second.end() && !found; stationIt++) {
-			if(*stationIt == (unsigned int)stationID) // at this point, stationID is > 0
-				found = true;
-		}
-
-		// display message
-		if(found){
-		cout << "The line " << lineID << " passes in this station";
-		}
-		else{
-			cout << "The line " << lineID << " doesn't pass in this station";
-		}
-	}
-}
-
-void menuChooseStations(Graph<string> &g)
+void menuTripPlanning(Graph<string> &g)
 {
 	// ask for departure station
 	int id_origin, id_dest;
 
 	do
 	{
-		id_origin = menuGetStationInput(g, "Departure Station");
+		id_origin = getStationInput(g, "Departure Station");
 	} while (id_origin == -1);
 
 	do
 	{
-		id_dest = menuGetStationInput(g, "Arrival station");
+		id_dest = getStationInput(g, "Arrival station");
 	} while (id_dest == -1);
 
 	// Get node pointers
@@ -169,7 +139,47 @@ void menuChooseStations(Graph<string> &g)
 	}
 }
 
-unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
+void menuFindLineInStation(Graph<string> &g){
+
+	int stationID;
+	string lineID;
+
+	// ask for station's name
+	do{
+		stationID = getStationInput(g, "Station");
+	} while (stationID == -1);
+
+	// ask for line's name
+	cout << "\nLine? ";
+	getline(cin, lineID);
+
+	// find the station in specified line
+	map<string, set<unsigned int>> stationsByLine = g.getStationsByLine();
+	auto lineIt = stationsByLine.find(lineID);
+
+	if(lineIt == stationsByLine.end()) {
+		cout << "The line " << lineID << " does not exist!\n";
+	} else {
+		// found line, get the iterator for stations of that line
+		bool found = false;
+		for(auto stationIt = lineIt->second.begin(); stationIt != lineIt->second.end() && !found; stationIt++) {
+			if(*stationIt == (unsigned int)stationID) // at this point, stationID is > 0
+				found = true;
+		}
+
+		// display message
+		if(found){
+		cout << "The line " << lineID << " passes in this station";
+		}
+		else{
+			cout << "The line " << lineID << " doesn't pass in this station";
+		}
+	}
+}
+
+
+
+unsigned int getStationInput(Graph<string> &g, string initialMessage) {
 	// get user station input
 	string stationInput;
 	cout << initialMessage << ": ";
