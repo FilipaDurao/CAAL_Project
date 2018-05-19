@@ -9,6 +9,7 @@
 #define GRAPH_H_
 
 #include <set>
+#include <map>
 #include <cfloat>
 #include <iostream>
 #include <utility>
@@ -570,7 +571,7 @@ template<typename T>
 class Graph {
 private:
 	vector<Node<T> *> nodes;
-
+	map<string, set<unsigned int>> listStationsByLine;
 public:
 	Graph();
 
@@ -581,7 +582,9 @@ public:
 	Node<T> * getNodeByID(unsigned int ID) const;//Get one node of the graph by its ID
 	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
 	vector<Node<T> *> getNodes() const;
+	map<string, set<unsigned int>> getStationsByLine() const;
 	void findInterfaces();
+	void insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID);
 
 // ---- Edges Types ----
 	void addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
@@ -724,6 +727,41 @@ vector<Node<T> *> Graph<T>::getNodes() const {
 	return this->nodes;
 }
 
+template<typename T>
+map<string, set<unsigned int>> Graph<T>::getStationsByLine() const {
+	return this->listStationsByLine;
+}
+
+/**
+ * @brief This function fills a container with all stations for each line
+ * 
+ * @tparam T 
+ * @param lineID
+ * @param sourceNodeID
+ * @param destinyNodeID 
+ */
+template<typename T>
+void Graph<T>::insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID) {
+	// try to find this line on map
+	auto it = this->listStationsByLine.find(lineID);
+	
+	if(it == listStationsByLine.end()) {
+		// this line is still not listed
+		set<unsigned int> stationList;
+
+		stationList.insert(sourceNodeID);
+		stationList.insert(destinyNodeID);
+		
+		this->listStationsByLine.insert(pair<string, set<unsigned int>>(lineID, stationList));
+	
+	} else {
+
+		it->second.insert(sourceNodeID);
+		it->second.insert(destinyNodeID);
+
+	}
+}
+
 /**
  * @brief Creates an BusEdge and adds it to a certain existing Node
  *
@@ -733,11 +771,12 @@ vector<Node<T> *> Graph<T>::getNodes() const {
  * @param lineID - the ID of the bus line
  */
 template<typename T>
-void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
-		double weight, string lineID) {
+void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight, string lineID) {
+	
 	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, BUS, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
 
+	insertStation(lineID, sourceNodeID, destinyNodeID);
 }
 
 /**
@@ -749,11 +788,12 @@ void Graph<T>::addBusEdge(unsigned int sourceNodeID, unsigned int destinyNodeID,
  * @param lineID - the ID of the subway line
  */
 template<typename T>
-void Graph<T>::addSubwayEdge(unsigned int sourceNodeID,
-		unsigned int destinyNodeID, double weight, string lineID) {
+void Graph<T>::addSubwayEdge(unsigned int sourceNodeID, unsigned int destinyNodeID, double weight, string lineID) {
+	
 	Edge<T> edge = Edge<T>(nodes.at(destinyNodeID), weight, SUBWAY, lineID);
 	this->nodes.at(sourceNodeID)->addEdge(edge);
-
+	
+	insertStation(lineID, sourceNodeID, destinyNodeID);
 }
 
 /**

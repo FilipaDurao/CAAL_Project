@@ -1,6 +1,10 @@
 #include "stringSearch.h"
 #include <vector>
 #include <sstream>
+#include <algorithm>
+#include <cctype>
+
+const static std::vector<std::string> myDictionary = {"a", "o", "as", "os", "de", "da", "do"};
 
 void computerPrefixFunction(std::string toSearch, int pi[]) {
 	int m = toSearch.length();
@@ -10,7 +14,7 @@ void computerPrefixFunction(std::string toSearch, int pi[]) {
 	for (int q = 1; q < m; q++) {
 		while (k > 0 && toSearch[k] != toSearch[q])
 			k = pi[k - 1];
-		if (toSearch[k] == toSearch[q])
+		if (tolower(toSearch[k]) == tolower(toSearch[q]))
 			k++;
 		pi[q] = k;
 	}
@@ -33,7 +37,7 @@ int kmpMatcher(std::string text, std::string pattern) {
 		while (q > 0 && pattern.at(q) != text.at(i))
 			q = pi[q - 1];
 
-		if (pattern.at(q) == text.at(i))
+		if (tolower(pattern.at(q)) == tolower(text.at(i)))
 			q++;
 
 		if (q == m) {
@@ -46,7 +50,7 @@ int kmpMatcher(std::string text, std::string pattern) {
 	return result;
 }
 
-int editDistance(std::string pattern, std::string text) {
+int editDistance(std::string text, std::string pattern) {
 
 	int m = pattern.length();
 	int n = text.length();
@@ -60,7 +64,7 @@ int editDistance(std::string pattern, std::string text) {
 		cur[0] = j;
 		for (int i = 1; i <= m; i++) {
 			int temp = cur[i];
-			if (pattern.at(i - 1) == text.at(j - 1))
+			if (tolower(pattern.at(i - 1)) == tolower(text.at(j - 1)))
 				cur[i] = pre;
 			else
 				cur[i] = std::min(pre + 1,
@@ -80,4 +84,35 @@ std::vector<std::string> tokenize(const std::string &s){
 		result.push_back(item);
 
 	return result;
+}
+
+int tokenizeAndSearch(std::string stationName, std::string userStationInput)
+{
+	int maxEditDistance = userStationInput.length() * 0.70;
+
+	// tokenize the station name
+	std::vector<std::string> tokens = tokenize(stationName);
+
+	// remove some definite articles, etc.
+	removeWordsFromDictionary(tokens);
+
+	// try to find at least one token from station name, where the user input is close enough
+	for (std::string s : tokens){
+		int sizeDiff = userStationInput.length() - s.length();
+		if (editDistance(userStationInput, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
+			return 0;
+	}
+
+	return -1;
+}
+
+void removeWordsFromDictionary(std::vector<std::string> &tokens){
+
+	for (std::string token : myDictionary)
+	{
+		auto it = std::find(tokens.begin(), tokens.end(), token);
+
+		if (it != tokens.end())
+			tokens.erase(it);
+	}
 }

@@ -25,5 +25,4 @@ int main() {
 	grafo.findInterfaces();
 
 	menu(grafo);
-
 }
