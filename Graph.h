@@ -571,7 +571,7 @@ template<typename T>
 class Graph {
 private:
 	vector<Node<T> *> nodes;
-	map<string, set<T>> listStationsByLine;
+	map<string, set<unsigned int>> listStationsByLine;
 public:
 	Graph();
 
@@ -582,6 +582,7 @@ public:
 	Node<T> * getNodeByID(unsigned int ID) const;//Get one node of the graph by its ID
 	unsigned int getNumEdges() const; 	// Get the number of edges in the graph
 	vector<Node<T> *> getNodes() const;
+	map<string, set<unsigned int>> getStationsByLine() const;
 	void findInterfaces();
 	void insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID);
 
@@ -726,6 +727,11 @@ vector<Node<T> *> Graph<T>::getNodes() const {
 	return this->nodes;
 }
 
+template<typename T>
+map<string, set<unsigned int>> Graph<T>::getStationsByLine() const {
+	return this->listStationsByLine;
+}
+
 /**
  * @brief This function fills a container with all stations for each line
  * 
@@ -737,19 +743,22 @@ vector<Node<T> *> Graph<T>::getNodes() const {
 template<typename T>
 void Graph<T>::insertStation(string lineID, unsigned int sourceNodeID, unsigned int destinyNodeID) {
 	// try to find this line on map
-	auto it = listStationsByLine.find(lineID);
+	auto it = this->listStationsByLine.find(lineID);
 	
 	if(it == listStationsByLine.end()) {
 		// this line is still not listed
-		set<T> stationList;
-		stationList.insert(this->nodes.at(sourceNodeID)->getInfo());
-		stationList.insert(this->nodes.at(destinyNodeID)->getInfo());
-		listStationsByLine.insert(pair<string, set<T>>(lineID, stationList));
+		set<unsigned int> stationList;
+
+		stationList.insert(sourceNodeID);
+		stationList.insert(destinyNodeID);
+		
+		this->listStationsByLine.insert(pair<string, set<unsigned int>>(lineID, stationList));
+	
 	} else {
-		// there's already a map entry for this line
-		// update map
-		it->second.insert(this->nodes.at(sourceNodeID)->getInfo());
-		it->second.insert(this->nodes.at(destinyNodeID)->getInfo());
+
+		it->second.insert(sourceNodeID);
+		it->second.insert(destinyNodeID);
+
 	}
 }
 

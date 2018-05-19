@@ -61,59 +61,6 @@ void menu(Graph<string> &g)
 	cout << "\n\nClosing...\n";
 }
 
-void fillStationsName(Graph<string> &g, vector<Guess *> &names)
-{
-
-	vector<Node<string> *> nodes = g.getNodes();
-
-	for (size_t i = 0; i < nodes.size(); i++)
-	{
-
-		Guess *newGuess = new Guess();
-
-		newGuess->stationName = nodes.at(i)->getInfo();
-		newGuess->index = i;
-		newGuess->editDistance = -1;
-
-		names.push_back(newGuess);
-	}
-}
-
-int getUserChoice(const set<Guess *, cmpGuess> &guesses)
-{
-	int partialSize = guesses.size();
-
-	if (partialSize != 0)
-	{
-
-		//if we only found one, display it
-		if (partialSize == 1)
-		{
-			cout << "Departure Station acknowledge: " << (*guesses.begin())->stationName << "\n";
-			return (*guesses.begin())->index;
-		}
-		else
-		{
-			cout << "We could't find your station. Did you mean:\n";
-			int i = 0;
-			for (auto it = guesses.begin(); it != guesses.end(); it++, i++)
-			{
-
-				cout << "[" << i << "]"
-					 << " - " << (*it)->stationName << endl;
-			}
-
-			int option = getMenuOptionInput(0, i, " -->Select your choice:");
-
-			auto result = next(guesses.begin(), option);
-
-			return (*result)->index;
-		}
-	}
-
-	return -1;
-}
-
 void menuStart(Graph<string> &g)
 {
 	int option;
@@ -134,103 +81,11 @@ void menuStart(Graph<string> &g)
 	else{
 		menuFindLineInStation(g);
 	}
-}
 
-int kmpExactSearch(string stop, vector<Guess *> &names)
-{
-	set<Guess *, cmpGuess> partialGuesses;
-
-	//Trying to find it exactly, or at least partially in a stop
-	for (Guess *g : names)
-	{
-
-		int result = kmpMatcher(g->stationName, stop);
-
-		if (result != 0)
-		{
-			partialGuesses.insert(g);
-		}
-	}
-
-	return getUserChoice(partialGuesses);
-}
-
-void removeWordsFromDictionary(vector<string> &tokens)
-{
-
-	for (string token : myDictionary)
-	{
-
-		auto it = find(tokens.begin(), tokens.end(), token);
-
-		if (it != tokens.end())
-			tokens.erase(it);
-	}
-}
-
-int tokenizeAndSearch(vector<Guess *> &names, string stop)
-{
-	set<Guess *, cmpGuess> possibleGuesses;
-
-	int maxEditDistance = stop.length() * 0.70;
-
-	for (Guess *g : names)
-	{
-
-		vector<string> tokens = tokenize(g->stationName);
-
-		removeWordsFromDictionary(tokens);
-
-		for (string s : tokens)
-		{
-			int sizeDiff = stop.length() - s.length();
-
-			if (editDistance(stop, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
-				possibleGuesses.insert(g);
-		}
-	}
-
-	return getUserChoice(possibleGuesses);
-}
-
-int getStringOption(vector<Guess *> &names, string initialMessage)
-{
-	set<Guess *, cmpGuess> guessAttempts;
-
-	string stop;
-
-	cout << initialMessage << ": ";
-
-	getline(cin, stop);
-
-	int maxDiff = stop.length() * 0.60;
-
-	//Exact Search
-	int index = kmpExactSearch(stop, names);
-
-	if (index != -1)
-		return index;
-
-	//Approximante Search
-	for (Guess *g : names)
-	{
-		g->editDistance = editDistance(stop, g->stationName);
-		if (g->editDistance <= maxDiff){ 
-			guessAttempts.insert(g);
-		}
-	}
-
-	//If we couldn't find it using the normal, try to tokenize it
-	if (guessAttempts.empty())
-	{
-		return tokenizeAndSearch(names, stop);
-	}
-
-	return getUserChoice(guessAttempts);
 }
 
 void menuFindLineInStation(Graph<string> &g){
-
+	/*
 	vector<Guess *> stationsName;
 
 	fillStationsName(g, stationsName);
@@ -263,47 +118,44 @@ void menuFindLineInStation(Graph<string> &g){
 	else{
 		cout << "The line " << id_line << " doesn't pass in this station";
 	}
+	*/
 
 }
 
 void menuChooseStations(Graph<string> &g)
 {
-
-	vector<Guess *> stationsName;
-
-	fillStationsName(g, stationsName);
-
 	// ask for departure station
 	int id_origin, id_dest;
 
 	do
 	{
-		id_origin = getStringOption(stationsName, "Departure Station");
+		id_origin = menuGetStationInput(g, "Departure Station");
 	} while (id_origin == -1);
 
 	do
 	{
-		id_dest = getStringOption(stationsName, "Arrival station");
+		id_dest = menuGetStationInput(g, "Arrival station");
 	} while (id_dest == -1);
 
 	// Get node pointers
-	Node<string> *startNode = g.getNodeByID(id_origin), *endNode = g.getNodeByID(id_dest);
+	Node<string> *startNode = g.getNodeByID(id_origin), 
+		*endNode = g.getNodeByID(id_dest);
 
 	// ask for criterion
 	pathCriterion criterion = menuPathCriterion();
 
 	// run Dijkstra based on criterion
 	Node<string> *lastNode = run_Dijkstra(g, startNode, endNode, criterion);
-
 	vector<Node<string> *> invertedPath = g.getDetailedPath(lastNode);
 
+	// 
 	g.presentPath(invertedPath);
 
 	vector<string> t = g.getPath(lastNode);
 
 	presentPath(t);
 
-	// Show map
+	// Show map (Graph Viewer)
 	if (invertedPath.at(0)->getLastNode() != NULL)
 	{
 		invertedPath.push_back(startNode);
@@ -315,11 +167,83 @@ void menuChooseStations(Graph<string> &g)
 
 		gv->closeWindow();
 	}
+}
 
-	for (Guess *g : stationsName)
-		free(g);
+unsigned int menuGetStationInput(Graph<string> &g, string initialMessage) {
+	// get user station input
+	string stationInput;
+	cout << initialMessage << ": ";
+	getline(cin, stationInput);
 
-	stationsName.clear();
+	// containers init
+	vector<Node<string> *> stations = g.getNodes();
+	vector<Node<string> *> matchedStations;
+
+	/**
+	 * Exact Search
+	 */
+
+	for(Node<string>* station : stations) {
+		if(kmpMatcher(station->getInfo(), stationInput))
+			matchedStations.push_back(station);
+	}
+
+	// call getUserChoice here
+	int userChoice = getUserChoice(matchedStations);
+
+	if(userChoice != -1)
+		return userChoice; // user could pick a station
+
+	// assuming match string failed, try aproximate search
+
+	/**
+	 * Approximate Search
+	 */
+
+	// set the maximum distance between map stations name and user input
+	int maxDiff = stationInput.length() * 0.60;
+
+	matchedStations.clear();
+	for(Node<string>* station : stations) {
+		if(editDistance(station->getInfo(), stationInput) <= maxDiff)
+			matchedStations.push_back(station);
+	}
+
+	/**
+	 * Token Search
+	 */
+
+	//If we couldn't find it using the normal, try to tokenize it
+	/*
+	if (guessAttempts.empty())
+	{
+		return tokenizeAndSearch(names, stop);
+	}*/
+
+	return getUserChoice(matchedStations);
+}
+
+int getUserChoice(const vector<Node<string> *> &matchedStations)
+{
+
+	if(matchedStations.size() == 1) {
+		cout << "Departure Station acknowledge: " << matchedStations.front()->getInfo() << "\n";
+		return matchedStations.front()->getId(); 
+	}
+	else if(matchedStations.size() > 1) {
+		cout << "We could't find your station. Did you mean:\n";
+		int i = 0;
+		for (auto it = matchedStations.begin(); it != matchedStations.end(); it++, i++){
+				cout << "[" << i << "]"
+					 << " - " << (*it)->getInfo() << endl;
+		}
+
+		int option = getMenuOptionInput(0, i, " -->Select your choice:");
+
+		return (*(matchedStations.begin() + option))->getId();
+	}
+	else 
+		return -1;
 }
 
 pathCriterion menuPathCriterion()
@@ -426,7 +350,52 @@ void presentPath(vector<string> t)
 	}
 }
 
-// Graph viewer
+/*
+void removeWordsFromDictionary(vector<string> &tokens)
+{
+
+	for (string token : myDictionary)
+	{
+
+		auto it = find(tokens.begin(), tokens.end(), token);
+
+		if (it != tokens.end())
+			tokens.erase(it);
+	}
+}
+
+int tokenizeAndSearch(vector<Guess *> &names, string stop)
+{
+	set<Guess *, cmpGuess> possibleGuesses;
+
+	int maxEditDistance = stop.length() * 0.70;
+
+	for (Guess *g : names)
+	{
+
+		vector<string> tokens = tokenize(g->stationName);
+
+		removeWordsFromDictionary(tokens);
+
+		for (string s : tokens)
+		{
+			int sizeDiff = stop.length() - s.length();
+
+			if (editDistance(stop, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
+				possibleGuesses.insert(g);
+		}
+	}
+
+	return getUserChoice(possibleGuesses);
+}*/
+/*
+	+-----------------------+
+	|                       |
+	|      Graph Viewer     |
+	|                       |
+	+-----------------------+
+*/
+
 void showGraphViewer(Graph<string> &g)
 {
 	GraphViewer *gv = buildGraphViewer(g);

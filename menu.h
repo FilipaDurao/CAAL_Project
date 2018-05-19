@@ -141,4 +141,7 @@ void fillStationsName(Graph<string> &g, vector<Guess *> &names);
  */
 int getStringOption(vector<Guess *> &names, string initialMessage);
 
+int getUserChoice(const vector<Node<string> *> &matchedStations);
+
+unsigned int menuGetStationInput(Graph<string> &g, string initialMessage);
 #endif
