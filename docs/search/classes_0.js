@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['comparedistance',['compareDistance',['../structcompareDistance.html',1,'']]]
+  ['cmpguess',['cmpGuess',['../structcmpGuess.html',1,'']]]
 ];

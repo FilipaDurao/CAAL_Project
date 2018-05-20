@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['clearlastnode',['clearLastNode',['../classNode.html#a0f4676beda08d0e711b14b17849d0073',1,'Node']]]
+  ['isnumber',['isNumber',['../menu_8cpp.html#ac4f60ed23d3bcaf186a82c0119efe306',1,'isNumber(string input):&#160;menu.cpp'],['../menu_8h.html#ac4f60ed23d3bcaf186a82c0119efe306',1,'isNumber(string input):&#160;menu.cpp']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['graph',['Graph',['../classGraph.html',1,'']]]
+  ['mutablepriorityqueue',['MutablePriorityQueue',['../classMutablePriorityQueue.html',1,'']]]
 ];
