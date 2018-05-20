@@ -29,3 +29,5 @@ std::string random_string(size_t length);
  */
 void compareAlgorithmsIncrementPattern();
 void compareAlgorithmsIncrementText();
+void compareAlgorithmsIncrementBoth();
+void compareAlgorithmsKMP() ;

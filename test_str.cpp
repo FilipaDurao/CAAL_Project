@@ -3,7 +3,9 @@
 
 int main() {
 	//compareAlgorithmsIncrementPattern();
-	compareAlgorithmsIncrementText();
+	//compareAlgorithmsIncrementText();
+	//compareAlgorithmsIncrementBoth();
+	compareAlgorithmsKMP();
 }
 
 std::string random_string( size_t length )
@@ -24,7 +26,7 @@ std::string random_string( size_t length )
 
 void compareAlgorithmsIncrementPattern(){
 
-	string text = random_string(1000);
+	string text = random_string(10000);
 	string pattern;
 
 	vector<double> kmpTimes;
@@ -110,19 +112,90 @@ void compareAlgorithmsIncrementText(){
 	free(pi);
 }
 
+void compareAlgorithmsIncrementBoth(){
 
+	string text;
+	string pattern;
 
+	vector<double> kmpTimes;
+	vector<double> edTimes;
 
+	cout << "*** Testing Kmp and Edit Distance *** \n\n";
 
+	for(unsigned int i = 1000; i <= 10000; i+= 1000){
 
+		pattern = random_string(i);
+		text = random_string(i);
 
+		auto start = std::chrono::high_resolution_clock::now();
 
+		kmpMatcher(text, pattern);
 
+		auto finish = std::chrono::high_resolution_clock::now();
+		auto elapsed = chrono::duration_cast<chrono::microseconds>(finish - start).count();
 
+		kmpTimes.push_back(elapsed);
 
+		start = std::chrono::high_resolution_clock::now();
 
+		editDistance(pattern, text);
 
+		finish = std::chrono::high_resolution_clock::now();
+		elapsed = chrono::duration_cast<chrono::microseconds>(finish - start).count();
 
+		edTimes.push_back(elapsed);
 
+	}
 
+	for(unsigned int i = 0; i < kmpTimes.size(); i++){
+		cout << "KMP time: " << kmpTimes.at(i) << "  ED time: " << edTimes.at(i) << endl;
+	}
 
+	cout << endl;
+
+}
+
+void compareAlgorithmsKMP() {
+	string text;
+	string pattern = random_string(5000);
+
+	vector<double> kmpTimes; // the normal kmp
+	vector<double> kmpPrefTimes; // the kmp without computing prefix
+
+	int *pi = (int *)malloc(sizeof(int)*5000);
+	computerPrefixFunction(pattern, pi);
+
+	cout << "*** Testing Kmp and Edit Distance *** \n\n";
+
+	for(unsigned long i = 1000; i <= 10000; i+= 1000){
+
+		text = random_string(i);
+
+		auto start = std::chrono::high_resolution_clock::now();
+
+		kmpMatcher(text, pattern);
+
+		auto finish = std::chrono::high_resolution_clock::now();
+		auto elapsed = chrono::duration_cast<chrono::microseconds>(finish - start).count();
+
+		kmpTimes.push_back(elapsed);
+
+		start = std::chrono::high_resolution_clock::now();
+
+		kmpMatcher(pattern, text, pi);
+
+		finish = std::chrono::high_resolution_clock::now();
+		elapsed = chrono::duration_cast<chrono::microseconds>(finish - start).count();
+
+		kmpPrefTimes.push_back(elapsed);
+
+	}
+
+	for(unsigned int i = 0; i < kmpTimes.size(); i++){
+		cout << "KMP time: " << kmpTimes.at(i) << "  KMP(withou prefix comp) time: " << kmpPrefTimes.at(i) << endl;
+	}
+
+	cout << endl;
+
+	free(pi);
+}
