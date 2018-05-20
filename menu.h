@@ -80,7 +80,13 @@ int getStationUserChoice(const vector<Node<string> *> &matchedStations);
  */
 int getStationUserApproximateChoice(const set<Guess *, cmpGuess> & approximateGuesses);
 
-
+/**
+ * @brief Valides the user input by tokenizing it and removing all the words from our common dictionary
+ * If the resulting vector of tokens if empty, the string is not valid
+ * 
+ * @param userInput - the string to be validated
+ * @return true if valid, false otherwise
+ */
 bool valideUserInput(string userInput);
 
 /**

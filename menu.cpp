@@ -204,6 +204,8 @@ int getStationInput(Graph<string> &g, string initialMessage) {
 	cout << initialMessage << ": ";
 	getline(cin, stationInput);
 
+
+	//validating user input, if it is not valid, return
 	if ( !valideUserInput(stationInput)){
 		cout << "The inserted name station is too generic, please try again.\n"; 	
 		return -1;
@@ -235,8 +237,6 @@ int getStationInput(Graph<string> &g, string initialMessage) {
 	 * Approximate Search
 	 * Now using the set
 	 */
-
-
 	// set the maximum distance between map stations name and user input
 	int maxDiff = stationInput.length() * 0.60;
 
