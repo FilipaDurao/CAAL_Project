@@ -1,4 +1,4 @@
-#include "Test.h"
+#include "test_dijkstra.h"
 
 using namespace std;
 
@@ -755,4 +755,9 @@ void compareAlgorithmsExtendedVersion() {
 				<< std::endl;
 	}
 
+}
+
+
+int main() {
+	return 0;
 }

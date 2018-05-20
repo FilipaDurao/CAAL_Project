@@ -1,4 +1,10 @@
-#include "test.h"
+#include "test_str.h"
+
+
+int main() {
+	compareAlgorithmsIncrementPattern();
+	compareAlgorithmsIncrementText();
+}
 
 std::string random_string( size_t length )
 {
