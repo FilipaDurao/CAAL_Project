@@ -137,8 +137,8 @@ int tokenizeAndSearch(std::string stationName, std::string userStationInput)
 		}
 	}
 
-	//if it found had at least many hits as the user tokens, we can consider it valid
-	if (matchCounter >= userTokens.size())
+	//if it found had at least one hit, we can consider it valid to ask
+	if (matchCounter >= 1)
 		return 0;
 	else
 		return -1;
