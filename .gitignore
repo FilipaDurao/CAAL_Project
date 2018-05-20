@@ -33,5 +33,7 @@
 
 
 TripPlanner
+test_dijkstra
+test_string
 
 \.vscode/
