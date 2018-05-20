@@ -2,13 +2,13 @@ CC =  g++ -Wextra -std=c++14
 OUTPUT = TripPlanner
 all: main clean
 
-main: connection graphviewer InfoLoader menu string
+main: graph_viewer connection InfoLoader menu string
 	$(CC) -o $(OUTPUT) Main.cpp connection.o graphviewer.o info.o menu.o string.o
 
 connection:
 	$(CC) -c GraphViewer/connection.cpp -o connection.o
 
-graphviewer:
+graph_viewer:
 	$(CC) -c GraphViewer/graphviewer.cpp -o graphviewer.o
 
 InfoLoader:
