@@ -220,6 +220,7 @@ int getStationInput(Graph<string> &g, string initialMessage) {
 	 * Approximate Search
 	 */
 
+
 	// set the maximum distance between map stations name and user input
 	int maxDiff = stationInput.length() * 0.60;
 
@@ -231,6 +232,7 @@ int getStationInput(Graph<string> &g, string initialMessage) {
 
 	if((userChoice = getStationUserChoice(matchedStations)) != -1)
 		return userChoice; // user could pick a station
+
 
 	/**
 	 * Token Search
@@ -255,7 +257,7 @@ int getStationUserChoice(const vector<Node<string> *> &matchedStations)
 	else if(matchedStations.size() > 1) {
 		cout << "We could't find your station. Did you mean:\n";
 		int i = 0;
-		for (auto it = matchedStations.begin(); it != matchedStations.end(); it++, i++){
+		for (auto it = matchedStations.begin(); it != matchedStations.end() && i < 4; it++, i++){
 				cout << "[" << i << "]"
 					 << " - " << (*it)->getInfo() << endl;
 		}

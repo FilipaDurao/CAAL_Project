@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <iostream>
 
 const static std::vector<std::string> myDictionary = {"a", "o", "as", "os", "de", "da", "do"};
 
@@ -88,22 +89,35 @@ std::vector<std::string> tokenize(const std::string &s){
 
 int tokenizeAndSearch(std::string stationName, std::string userStationInput)
 {
-	int maxEditDistance = userStationInput.length() * 0.70;
+	int maxEditDistance = 1;
 
 	// tokenize the station name
 	std::vector<std::string> tokens = tokenize(stationName);
 
+	//tokenize user input
+	std::vector<std::string> userTokens = tokenize(userStationInput);
+
 	// remove some definite articles, etc.
 	removeWordsFromDictionary(tokens);
 
+	size_t matchCounter = 0; 
+
 	// try to find at least one token from station name, where the user input is close enough
 	for (std::string s : tokens){
-		int sizeDiff = userStationInput.length() - s.length();
-		if (editDistance(userStationInput, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
-			return 0;
+
+		for(std::string uS : userTokens){
+
+		int sizeDiff = uS.length() - s.length();
+		if (editDistance(uS, s) <= maxEditDistance && (abs(sizeDiff) <= 1))
+			matchCounter++;
+		}
 	}
 
-	return -1;
+	//if it found had at least many hits as the user tokens, we can consider it valid
+	if (matchCounter >= userTokens.size())
+		return 0;
+	else
+		return -1;
 }
 
 void removeWordsFromDictionary(std::vector<std::string> &tokens){
