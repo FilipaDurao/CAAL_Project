@@ -14,9 +14,19 @@ void computerPrefixFunction(std::string toSearch, int pi[]);
  * 
  * @param text The text to be processed
  * @param pattern The pattern to be found in text
- * @retval 0 If pattern not found
+ * @retval The number of pattern ocurrences in text
  */
 int kmpMatcher(std::string text, std::string pattern);
+
+/**
+ * @see kmpMatcher
+ * This is the kmpMatcher algorithm, but the prefix table is passed by reference. This is useful when the algorithm is applied on different texts, but the pattern is constant
+ * @param text The text to be processed
+ * @param pattern The pattern to be found in text
+ * @param pi The prefix table computed by computerPrefixFunction()
+ * @return int The number of pattern ocurrences in text
+ */
+int kmpMatcher(std::string text, std::string pattern, int pi[]);
 
 /**
  * @brief The Levenshtein Distance algorithm
