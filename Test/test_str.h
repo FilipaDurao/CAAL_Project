@@ -10,8 +10,8 @@
 #include <time.h>
 #include <chrono>
 #include <iostream>
-#include "Graph.h"
-#include "stringSearch.h"
+
+#include "../stringSearch.h"
 
 using namespace std;
 
