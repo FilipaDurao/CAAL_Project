@@ -1,6 +1,24 @@
 #include <string>
 #include <vector>
 
+/** 
+* Struct containing the essential info for the string searching algorithmns 
+*/ 
+typedef struct{
+  std::string stationName; ///< the stop name 
+  int index;         ///< the stop index in the Graph's vector 
+  int editDistance;  ///< it's current editDistance 
+}Guess;
+
+/**
+ * < operator for Guess 
+ */
+struct cmpGuess{ 
+   bool operator()(Guess * a,  Guess * b) const { 
+        return a->editDistance < b->editDistance; 
+    } 
+}; 
+
 /**
  * @brief The KMP prefix pre-processing algorithm
  * 

@@ -9,6 +9,7 @@
 #include "Graph.h"
 #include "GraphViewer/graphviewer.h"
 #include <string>
+#include "stringSearch.h"
 
 enum pathCriterion
 {
@@ -70,6 +71,17 @@ int getStationInput(Graph<string> &g, string initialMessage);
  * @return int The node ID of the picked station. If the vector is empty, returns -1
  */
 int getStationUserChoice(const vector<Node<string> *> &matchedStations);
+
+/**
+ * @brief This function lists stations and asks the user to pick one, after an approximate search was done
+ * 
+ * @param matchedStations A set of Guess pointers 
+ * @return int The node ID of the picked station. If the vector is empty, returns -1
+ */
+int getStationUserApproximateChoice(const set<Guess *, cmpGuess> & approximateGuesses);
+
+
+bool valideUserInput(string userInput);
 
 /**
  * @brief Menu where the user is asked for a criterion for trip planning

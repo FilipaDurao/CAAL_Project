@@ -5,7 +5,6 @@
  */
 #include "menu.h"
 #include <vector>
-#include "stringSearch.h"
 #include <cmath>
 
 /*
@@ -189,15 +188,31 @@ bool menuWantToExit()
 	return (opt == 0 ? false : true);
 }
 
+bool valideUserInput(string input){
+
+	vector<string> tokens = tokenize(input);
+
+	removeWordsFromDictionary(tokens);
+
+	return !tokens.empty();
+
+}
+
 int getStationInput(Graph<string> &g, string initialMessage) {
 	// get user station input
 	string stationInput;
 	cout << initialMessage << ": ";
 	getline(cin, stationInput);
 
+	if ( !valideUserInput(stationInput)){
+		cout << "The inserted name station is too generic, please try again.\n"; 	
+		return -1;
+	}
+
 	// containers initialization
 	vector<Node<string> *> stations = g.getNodes();
 	vector<Node<string> *> matchedStations;
+	set<Guess *, cmpGuess> approximateGuesses;
 
 	/**
 	 * Exact Search
@@ -218,19 +233,30 @@ int getStationInput(Graph<string> &g, string initialMessage) {
 
 	/**
 	 * Approximate Search
+	 * Now using the set
 	 */
 
 
 	// set the maximum distance between map stations name and user input
 	int maxDiff = stationInput.length() * 0.60;
 
-	matchedStations.clear();
 	for(Node<string>* station : stations) {
-		if(editDistance(station->getInfo(), stationInput) <= maxDiff)
-			matchedStations.push_back(station);
+		int distance = editDistance(station->getInfo(), stationInput);
+
+		if(distance <= maxDiff){
+
+			Guess * g = new Guess();
+			g->editDistance = distance;
+			g->index = station->getId();
+			g->stationName = station->getInfo();
+
+			approximateGuesses.insert(g);
+
+		}
+	
 	}
 
-	if((userChoice = getStationUserChoice(matchedStations)) != -1)
+	if((userChoice = getStationUserApproximateChoice(approximateGuesses)) != -1)
 		return userChoice; // user could pick a station
 
 
@@ -246,6 +272,34 @@ int getStationInput(Graph<string> &g, string initialMessage) {
 	}
 	return getStationUserChoice(matchedStations);
 }
+
+
+int getStationUserApproximateChoice(const set<Guess *, cmpGuess> & approximateGuesses)
+{
+
+	if(!approximateGuesses.empty()) {
+		cout << "We could't find your station. Did you mean:\n";
+		int i = 0;
+		for (auto it = approximateGuesses.begin(); it != approximateGuesses.end() && i < 4; it++, i++){
+				cout << "[" << i << "]"
+					 << " - " << (*it)->stationName << endl;
+		}
+			cout << "[" << i << "]"
+					 << " - " << "None of the Above. Try advanced search." << endl;
+
+		int option = getMenuOptionInput(0, i, " -->Select your choice:");
+
+		if(option == i){
+			return -1;
+		}
+
+		auto result = next(approximateGuesses.begin(), option);
+		return (*result)->index;
+	}
+	else 
+		return -1;
+}
+
 
 int getStationUserChoice(const vector<Node<string> *> &matchedStations)
 {

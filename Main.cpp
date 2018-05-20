@@ -8,7 +8,6 @@
 #include <iostream>
 #include "Graph.h"
 #include "InfoLoader.h"
-#include "stringSearch.h"
 #include "menu.h"
 #include "GraphViewer/graphviewer.h"
 
