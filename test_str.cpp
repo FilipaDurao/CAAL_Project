@@ -2,7 +2,7 @@
 
 
 int main() {
-	compareAlgorithmsIncrementPattern();
+	//compareAlgorithmsIncrementPattern();
 	compareAlgorithmsIncrementText();
 }
 
@@ -24,7 +24,7 @@ std::string random_string( size_t length )
 
 void compareAlgorithmsIncrementPattern(){
 
-	string text = "This is test text";
+	string text = random_string(1000);
 	string pattern;
 
 	vector<double> kmpTimes;
@@ -32,7 +32,7 @@ void compareAlgorithmsIncrementPattern(){
 
 	cout << "*** Testing Kmp and Edit Distance with incrementing pattern size *** \n\n";
 
-	for(unsigned int i = 100; i < 1000; i++){
+	for(unsigned int i = 1000; i <= 10000; i+= 1000){
 
 		pattern = random_string(i);
 
@@ -67,20 +67,25 @@ void compareAlgorithmsIncrementPattern(){
 void compareAlgorithmsIncrementText(){
 
 	string text;
-	string pattern = "This is pattern";
+	string pattern = random_string(1000);
+	
+	// compute prefix function
+	int *pi = (int *)malloc(sizeof(int)*10000);
+	computerPrefixFunction(pattern, pi);
 
 	vector<double> kmpTimes;
 	vector<double> edTimes;
 
 	cout << "\n*** Testing Kmp and Edit Distance with incrementing text size *** \n\n";
 
-	for(unsigned int i = 100; i < 1000; i++){
+	for(unsigned int i = 100; i <= 1000; i+= 100){
 
 		text = random_string(i);
 
 		auto start = std::chrono::high_resolution_clock::now();
 
-		kmpMatcher(text, pattern);
+		kmpMatcher(text, pattern, pi);
+		//kmpMatcher(text, pattern);
 
 		auto finish = std::chrono::high_resolution_clock::now();
 		auto elapsed = chrono::duration_cast<chrono::microseconds>(finish - start).count();
@@ -102,7 +107,7 @@ void compareAlgorithmsIncrementText(){
 		cout << "KMP time: " << kmpTimes.at(i) << "  ED time: " << edTimes.at(i) << endl;
 	}
 
-
+	free(pi);
 }
 
 

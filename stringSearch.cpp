@@ -51,6 +51,30 @@ int kmpMatcher(std::string text, std::string pattern) {
 	return result;
 }
 
+int kmpMatcher(std::string text, std::string pattern, int pi[]) {
+	int n = text.length();
+	int m = pattern.length();
+
+	int i = 0, q = 0, result = 0;
+
+	for (; i < n; i++) {
+
+		while (q > 0 && pattern.at(q) != text.at(i))
+			q = pi[q - 1];
+
+		if (tolower(pattern.at(q)) == tolower(text.at(i)))
+			q++;
+
+		if (q == m) {
+			result++;
+			q = pi[q - 1];
+		}
+
+	}
+
+	return result;
+}
+
 int editDistance(std::string text, std::string pattern) {
 
 	int m = pattern.length();
