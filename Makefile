@@ -22,11 +22,14 @@ string:
 
 # Compilation for Dijkstra algorithms performance tests
 testDijkstra: 
-	$(CC) -o test_dijkstra test_dijkstra.cpp
+	$(CC) -o test_dijkstra Test/test_dijkstra.cpp
 
 # Compilation for String matching/aproximattion algorithms performance tests
 testString: string
-	$(CC) -o test_string test_str.cpp string.o
+	$(CC) -o test_string Test/test_str.cpp string.o
 
 clean:
-	rm *.o
+	rm -f *.o
+
+cleanBin: 
+	rm -f $(OUTPUT) test_string test_dijkstra 
